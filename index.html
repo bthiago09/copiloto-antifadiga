@@ -746,7 +746,7 @@ $("#btnSpin").addEventListener("click", () => setSpin(!controls.autoRotate));
 
 /* Vistas */
 const views = {
-  device: () => ({ t: head.localToWorld(new THREE.Vector3(0, 2.4, 0)), p: head.localToWorld(new THREE.Vector3(7, 7, 21)) }),
+  device: () => { const k = innerWidth < innerHeight ? 1.75 : 1; return { t: head.localToWorld(new THREE.Vector3(0, 2.4, 0)), p: head.localToWorld(new THREE.Vector3(7 * k, 7 * k, 21 * k)) }; },
   side:   () => ({ t: head.localToWorld(new THREE.Vector3(2, 2.6, 0)), p: head.localToWorld(new THREE.Vector3(20, 6, 12)) }),
   driver: () => ({ p: new THREE.Vector3(-30, 34, 96), t: new THREE.Vector3(-8, 0, 2) }),
   cabin:  () => ({ p: new THREE.Vector3(52, 36, 60), t: new THREE.Vector3(-8, -2, 4) })
