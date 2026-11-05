@@ -348,13 +348,17 @@ const FALLBACK = {
   3: "Acorde! Aperte Estou Bem agora.",
   ok: "Tudo bem. Continuo de olho. Dirija com segurança."
 };
+playVoice.id = 0;
 function playVoice(k) {
   stopVoices();
   pulseWaves(k === 2 ? 7 : k === "ok" ? 2 : 4);
   const fb = () => { try { const u = new SpeechSynthesisUtterance(FALLBACK[k]); u.lang = "pt-BR"; speechSynthesis.speak(u); } catch (e) {} };
   const a = players[k];
   if (!a) return fb();
-  try { a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(fb); } catch (e) { fb(); }
+  const id = ++playVoice.id;
+  // só usa a voz do navegador se o MP3 realmente não puder tocar (não quando foi interrompido de propósito)
+  const onErr = e => { if (id === playVoice.id && e && e.name === "NotSupportedError") fb(); };
+  try { a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(onErr); } catch (e) { onErr(e); }
 }
 function beeps(n = 6) {
   const c = ctx(); if (!c) return;

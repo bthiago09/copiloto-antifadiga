@@ -800,6 +800,7 @@ function stopVoices() {
   for (const k in voicePlayers) { try { voicePlayers[k].pause(); voicePlayers[k].currentTime = 0; } catch (e) {} }
   try { speechSynthesis.cancel(); } catch (e) {}
 }
+playVoice.id = 0;
 function playVoice(key, fallbackText) {
   const a = voicePlayers[key];
   const fallback = () => {
@@ -813,7 +814,10 @@ function playVoice(key, fallbackText) {
     } catch (e) {}
   };
   if (!a) { fallback(); return; }
-  try { a.currentTime = 0; const pr = a.play(); if (pr && pr.catch) pr.catch(fallback); } catch (e) { fallback(); }
+  const id = ++playVoice.id;
+  // só usa a voz do navegador se o MP3 realmente não puder tocar (não quando foi interrompido de propósito)
+  const onErr = e => { if (id === playVoice.id && e && e.name === "NotSupportedError") fallback(); };
+  try { a.currentTime = 0; const pr = a.play(); if (pr && pr.catch) pr.catch(onErr); } catch (e) { onErr(e); }
 }
 function speak(level) {
   stopVoices();
