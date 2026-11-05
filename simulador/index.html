@@ -160,7 +160,7 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 .primary { flex: 1; min-height: 52px; padding: 0 20px; background: var(--amber); border-color: var(--amber); color: var(--on-amber); font: 700 15px var(--font-body); letter-spacing: .1em; text-transform: uppercase; border-radius: var(--r) 0 0 var(--r); }
 .primary:hover { background: #ffb954; border-color: #ffb954; }
 .secondary { flex: 1; min-height: 52px; padding: 0 18px; font: 600 14px var(--font-body); letter-spacing: .1em; text-transform: uppercase; border-radius: 0 var(--r) var(--r) 0; border-left: 0; }
-#pause .primary, .actions .primary:only-child { border-radius: var(--r); }
+#pause .primary, .actions .primary:only-child, .actions .primary:has(+ [hidden]) { border-radius: var(--r); }
 .err { color: #ffb4b4; font-size: 14px; }
 .caption { font-size: 12.5px; color: var(--muted) !important; }
 #calib .big { font: 700 96px/.85 var(--font-display); color: var(--amber); text-align: center; font-variant-numeric: tabular-nums; }
@@ -168,9 +168,77 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 #toast { position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 8px); z-index: 8; max-width: min(520px, calc(100% - 32px)); padding: 10px 14px; border-left: 3px solid var(--ok); font-size: 14px; opacity: 0; transition: opacity .25s var(--ease), transform .25s var(--ease); pointer-events: none; }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+/* Viagem guiada e cansaço */
+#trip { display: grid; gap: 6px; border: 1px solid var(--line); border-radius: var(--r); padding: 10px; }
+#trip[hidden] { display: none; }
+#tripMode { margin: 0; font: 700 20px/.9 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; }
+#trip.off #tripMode { color: var(--red); }
+#trip.on #tripMode { color: var(--ok); }
+#trip .meter .fill { background: var(--amber); transition: none; }
+#demoExit { min-height: 32px; font: 600 11px var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+#demoExit[hidden] { display: none; }
+.fat { display: grid; gap: 6px; }
+.fat .row > span { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.fat .fill { transition: width .2s linear, background .3s; }
+#tired { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; background: radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 30%, rgba(0,0,0,.96) 100%); }
+#bigMsg {
+  position: fixed; left: 50%; top: 46%; transform: translate(-50%, -50%) scale(.96); z-index: 7; pointer-events: none;
+  padding: 14px 22px; display: grid; justify-items: center; gap: 6px; text-align: center; max-width: calc(100% - 32px);
+  border-color: var(--amber); opacity: 0; transition: opacity .25s var(--ease), transform .25s var(--ease);
+}
+#bigMsg.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+#bigMsg b { font: 700 clamp(40px, 8vh, 72px)/.85 var(--font-display); letter-spacing: -.02em; color: var(--amber); text-transform: uppercase; font-variant-numeric: tabular-nums; }
+#bigMsg span { font: 500 13px var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+#bigMsg.bad { border-color: var(--red); } #bigMsg.bad b { color: var(--red); }
+#bigMsg.good { border-color: var(--ok); } #bigMsg.good b { color: var(--ok); }
+#nearMiss { position: fixed; left: 50%; top: 24%; transform: translate(-50%, -50%); z-index: 7; pointer-events: none; font: 700 clamp(56px, 13vh, 128px)/.85 var(--font-display); text-transform: uppercase; letter-spacing: -.02em; color: transparent; -webkit-text-stroke: 2px var(--amber); opacity: 0; transition: opacity .15s; }
+#nearMiss.show { opacity: 1; }
+#postoCard { padding: 10px 12px; display: grid; gap: 4px; border-color: #3d6fd1; }
+#postoCard[hidden] { display: none; }
+#postoCard .label::before { background: #5b8cf0; }
+#postoCard .row > span { font-size: 14px; }
+#postoCard b { font: 700 26px/.9 var(--font-display); color: #9dbbff; white-space: nowrap; }
+#postoCard .hint { font-size: 12.5px; color: var(--muted); }
+#postoCard.ok .hint { color: var(--ok); }
+#okBtn.off { opacity: .4; }
+.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--r); }
+.modes button { position: relative; border: 0; border-radius: 0; padding: 10px 12px; display: grid; gap: 2px; align-content: start; text-align: left; min-height: 54px; }
+.modes button + button { border-left: 1px solid var(--line); }
+.modes b { font: 700 15px/1 var(--font-display); text-transform: uppercase; letter-spacing: .01em; }
+.modes span { font-size: 12px; color: var(--muted); }
+.modes button[aria-checked="true"] { background: var(--surface-2); }
+.modes button[aria-checked="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--amber); }
+.modes button[aria-checked="true"] b { color: var(--amber); }
+#camField[hidden] { display: none; }
+
+/* Fim de trecho e comparação */
+.dialog.wide { width: min(760px, 100%); }
+.cmp { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); border: 1px solid var(--line); border-radius: var(--r); }
+.cmp > div { padding: 7px 12px; border-top: 1px solid var(--line-dark); font-size: 13.5px; color: var(--muted); }
+.cmp > div:nth-child(3n+2), .cmp > div:nth-child(3n) { border-left: 1px solid var(--line-dark); color: var(--ink); font: 600 16px var(--font-display); font-variant-numeric: tabular-nums; }
+.cmp > .h { border-top: 0; font: 600 11px var(--font-body) !important; letter-spacing: .14em; text-transform: uppercase; }
+.cmp > .h.off { color: var(--red); } .cmp > .h.on { color: var(--ok); }
+.cmp > div.best:nth-child(n) { color: var(--ok); }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--r); }
+.facts > div { padding: 10px 12px; display: grid; gap: 2px; }
+.facts > div + div { border-left: 1px solid var(--line-dark); }
+.facts b { font: 700 28px/.9 var(--font-display); font-variant-numeric: tabular-nums; }
+.facts span { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.facts .bad b { color: var(--red); }
+.countdown { font-size: 13px; color: var(--muted) !important; }
+
+@media (max-height: 840px) {
+  #start .intro, #start .caption { display: none; }
+}
+@media (max-height: 680px) {
+  .steps li { padding: 5px 0; font-size: 13.5px; }
+  .modes button { min-height: 46px; padding: 8px 12px; }
+  .primary, .secondary { min-height: 46px; }
+}
 @media (max-height: 720px) and (min-width: 901px) {
   #controlsHint, .privacy { display: none; }
   #camWrap { aspect-ratio: 16 / 9; }
+  #hud { gap: 9px; padding: 14px; }
 }
 @media (max-width: 900px) {
   #hud { top: 8px; left: 8px; width: auto; max-width: calc(50% - 12px); padding: 10px; gap: 8px; }
@@ -187,6 +255,25 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
   #settings { left: 8px; right: 8px; width: auto; bottom: 74px; }
   #toast { bottom: 150px; }
   body:has(#alert.show) #toast { opacity: 0; }
+  #trip { padding: 6px 8px; gap: 4px; }
+  #trip .row { display: none; }
+  #tripMode { font-size: 14px; }
+  .fat { gap: 4px; }
+  #postoCard { position: fixed; left: 8px; right: 8px; bottom: 176px; z-index: 5; padding: 8px 12px; }
+  #postoCard b { font-size: 22px; }
+  #bigMsg { top: 46%; padding: 12px 16px; }
+  .modes button { padding: 8px; min-height: 50px; }
+  .modes b { font-size: 13px; }
+  .modes span { font-size: 11px; }
+  .cmp > div { padding: 6px 8px; font-size: 12.5px; overflow-wrap: anywhere; }
+  .dialog { padding: 16px; gap: 10px; }
+  .dialog h2 { font-size: clamp(26px, 7.6vw, 34px); }
+  #start .intro, #start .caption { display: none; }
+  .steps li { font-size: 13px; padding: 6px 0; gap: 10px; line-height: 1.4; }
+  .primary, .secondary { min-height: 48px; font-size: 13px; padding: 0 12px; }
+  .cmp > div:nth-child(3n+2), .cmp > div:nth-child(3n) { font-size: 14px; }
+  .facts b { font-size: 22px; }
+  .facts > div { padding: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -204,8 +291,11 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 
 <div id="stage" aria-label="Cabine do carro em 3D, estrada à noite"></div>
 <div id="loading">Carregando a cabine 3D…</div>
+<div id="tired" aria-hidden="true"></div>
 <div id="lids" aria-hidden="true"></div>
 <div id="edge"></div>
+<div id="bigMsg" class="panel" aria-live="polite"><b id="bigNum"></b><span id="bigTxt"></span></div>
+<div id="nearMiss" aria-hidden="true">Quase!</div>
 
 <section id="hud" class="panel" aria-label="Painel do simulador">
   <div class="brand"><span>Equipe 1</span><span class="rule" aria-hidden="true"></span><span class="tag">Protótipo 02</span></div>
@@ -214,14 +304,29 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
     <span class="front"><span>Simulador</span><span>de estrada</span></span>
   </h1>
   <a class="navlink" href="https://bthiago09.github.io/copiloto-antifadiga/"><span aria-hidden="true">←</span>Ver o aparelho</a>
+  <div id="trip" hidden>
+    <div class="row"><span class="label" id="tripLbl">Trecho 1 de 2</span><b id="tripTime">1:00</b></div>
+    <p id="tripMode">Sem copiloto</p>
+    <div class="meter"><div class="fill" id="tripFill"></div></div>
+    <button id="demoExit" hidden>Sair da demonstração</button>
+  </div>
   <div class="stats">
     <div class="stat"><b id="spd">0</b><span>km/h</span></div>
     <div class="stat"><b id="dist">0,0</b><span>km rodados</span></div>
   </div>
+  <div class="fat">
+    <div class="row"><span>Cansaço</span><b id="fatPct">0%</b></div>
+    <div class="meter"><div class="fill" id="fatFill"></div></div>
+  </div>
   <div id="log" aria-live="polite">
     <div><strong id="logAlerts">0</strong><span>Alertas</span></div>
-    <div><strong id="logCrash">0</strong><span>Saídas de pista</span></div>
-    <div><strong id="logReact">–</strong><span>Reação média</span></div>
+    <div><strong id="logCrash">0</strong><span>Batidas</span></div>
+    <div><strong id="logReact">–</strong><span>Reflexo médio</span></div>
+  </div>
+  <div id="postoCard" class="panel" hidden>
+    <span class="label">Parada segura</span>
+    <div class="row"><span>Posto de descanso</span><b id="postoDist">500 m</b></div>
+    <span class="hint" id="postoHint">Fique na faixa da direita para entrar.</span>
   </div>
 </section>
 
@@ -275,14 +380,22 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
       <p class="label" style="margin-bottom:10px">Copiloto antifadiga</p>
       <h2 id="startTitle">Dirija à noite com o copiloto de olho no sono</h2>
     </div>
-    <p>A câmera acompanha os seus olhos enquanto você dirige. Se eles ficarem fechados por tempo demais, o copiloto avisa por voz em 3 níveis.</p>
+    <p class="intro">A câmera acompanha os seus olhos enquanto você dirige. Se eles ficarem fechados por tempo demais, o copiloto avisa por voz em 3 níveis.</p>
     <ol class="steps">
-      <li>Posicione a câmera de frente para o rosto, como ficaria no painel.</li>
-      <li>Você está no banco do motorista, com o copiloto no painel. Troque de faixa com as setas e desvie dos carros.</li>
-      <li>Feche os olhos de propósito por alguns segundos e veja o copiloto reagir.</li>
-      <li>Aperte <b>Estou Bem</b> (ou Espaço) para confirmar que está desperto.</li>
+      <li><span>Na viagem guiada você faz o mesmo trecho duas vezes: primeiro sem o copiloto, depois com ele.</span></li>
+      <li><span>Troque de faixa com as setas (ou toque nos lados da tela) e desvie de carros, buracos e animais.</span></li>
+      <li><span>O sono chega aos poucos: a visão escurece e você pode cochilar sem querer.</span></li>
+      <li><span>Quando o copiloto avisar, aperte <b>Estou Bem</b> (ou Espaço) e procure o posto para descansar.</span></li>
     </ol>
     <div class="field">
+      <span class="label">Modo</span>
+      <div class="modes" role="radiogroup" aria-label="Modo de jogo">
+        <button role="radio" aria-checked="true" data-mode="guided"><b>Viagem guiada</b><span>2 trechos · 2 min</span></button>
+        <button role="radio" aria-checked="false" data-mode="free"><b>Jogo livre</b><span>Sem fim</span></button>
+        <button role="radio" aria-checked="false" data-mode="demo"><b>Demonstração</b><span>Joga sozinho</span></button>
+      </div>
+    </div>
+    <div class="field" id="camField">
       <label for="camSelect" class="label">Câmera</label>
       <select id="camSelect"><option value="">Câmera padrão (o navegador vai pedir permissão)</option></select>
     </div>
@@ -293,6 +406,11 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
     </div>
     <p class="caption">Para usar a câmera do celular, conecte-o como webcam (ex.: DroidCam ou Vincular ao Celular do Windows) e escolha-o na lista. Ou abra esta página direto no celular.</p>
   </div>
+</div>
+
+<!-- Fim de trecho / comparação -->
+<div class="overlay" id="segEnd" hidden>
+  <div class="dialog panel wide" role="dialog" aria-labelledby="segTitle" id="segBox"></div>
 </div>
 
 <!-- Calibração -->
@@ -361,6 +479,31 @@ function toast(msg, ms = 2600, color) {
   toast.h = setTimeout(() => t.classList.remove("show"), ms);
 }
 
+/* ================== Estado do jogo ================== */
+// G: modo, relógio do jogo (para quando pausa), cansaço, cochilos, posto, eventos.
+const G = {
+  mode: null, pick: "guided", copilot: true, seg: 0, segT: 0, si: 0, bi: 0, t: 0, dev: 1,
+  F: 0.1, auto: null, lid: 0, steerQ: [], threat: null, lastSteerAt: -1e9, lastFromLane: -1,
+  closedRun: 0, wasClosed: false, closedStart: 0, posto: null, nextEvt: 12, nextBlink: 0, lastMicro: -1e9,
+  slow: 0, ts: 1, results: {}, botAt: null, botDir: 0, demoTimer: null, edgeClock: 0
+};
+// ST: números do trecho atual (ou da sessão, no jogo livre)
+const newStats = () => ({ alerts: 0, crashes: 0, reflex: [], okReact: [], blindM: 0, longest: 0, longestM: 0, holes: 0, nearMiss: 0, posto: 0, result: null });
+let ST = newStats();
+const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const fmtS = v => v.toFixed(1).replace(".", ",") + " s";
+const fmtM = v => Math.round(v) + " m";
+const fmtT = v => { const s = Math.max(0, Math.round(v)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+
+function showBig(num, txt, cls = "", ms = 2400) {
+  const b = $("#bigMsg");
+  $("#bigNum").textContent = num; $("#bigTxt").textContent = txt;
+  b.className = "panel show " + cls;
+  clearTimeout(showBig.h);
+  showBig.h = setTimeout(() => b.classList.remove("show"), ms);
+}
+
 /* ================== Áudio ================== */
 const players = {};
 for (const k in VOICE) { try { players[k] = new Audio(VOICE[k]); players[k].preload = "auto"; } catch (e) {} }
@@ -397,6 +540,41 @@ function beeps(n = 6) {
     o.connect(g).connect(c.destination); o.start(now + i * 0.3); o.stop(now + i * 0.3 + 0.28);
   }
 }
+// ruído (base para o som da estrada, buraco e "vento" da quase-batida)
+let noiseBuf = null;
+function getNoise(c) {
+  if (noiseBuf) return noiseBuf;
+  const len = c.sampleRate * 2; noiseBuf = c.createBuffer(1, len, c.sampleRate);
+  const d = noiseBuf.getChannelData(0); let b = 0;
+  for (let i = 0; i < len; i++) { const w = Math.random() * 2 - 1; b = (b + 0.02 * w) / 1.02; d[i] = b * 3.5 * 0.7 + w * 0.3 * 0.12; }
+  return noiseBuf;
+}
+let roadN = null;
+function roadNoise() {
+  const c = ctx(); if (!c || roadN) return;
+  const src = c.createBufferSource(); src.buffer = getNoise(c); src.loop = true;
+  const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1200;
+  const g = c.createGain(); g.gain.value = 0;
+  src.connect(lp).connect(g).connect(c.destination); src.start();
+  roadN = { lp, g };
+}
+function setRoadNoise(gain, freq) {
+  if (!roadN || !actx) return;
+  roadN.g.gain.setTargetAtTime(gain, actx.currentTime, 0.15);
+  roadN.lp.frequency.setTargetAtTime(freq, actx.currentTime, 0.3);
+}
+function burst(dur, type, f0, f1, gain) {
+  const c = ctx(); if (!c) return;
+  const src = c.createBufferSource(); src.buffer = getNoise(c);
+  const f = c.createBiquadFilter(); f.type = type; f.Q.value = type === "bandpass" ? 1.2 : 0.7;
+  const g = c.createGain(), t = c.currentTime;
+  f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(f).connect(g).connect(c.destination); src.start(t, Math.random()); src.stop(t + dur + 0.05);
+}
+const thud = big => burst(big ? 0.6 : 0.3, "lowpass", big ? 260 : 220, 60, big ? 0.9 : 0.6);
+const whoosh = () => burst(0.45, "bandpass", 500, 2600, 0.35);
+
 let rumbleNode = null;
 function rumble(on) {
   const c = ctx(); if (!c) return;
@@ -408,7 +586,7 @@ function rumble(on) {
 }
 
 /* ================== Trilha de alertas ================== */
-const A = { level: 0, alertAt: 0, lastEventAt: -1e9, cooldownUntil: 0, alarmTimer: null, wasLong: false, reactions: [], count: 0, crashes: 0 };
+const A = { level: 0, alertAt: 0, lastEventAt: -1e9, prevLongAt: -1e9, cooldownUntil: 0, alarmTimer: null, alarmTimer2: null, wasLong: false };
 const TEXT = {
   1: "Percebi sinais de cansaço. Que tal parar em breve para descansar?",
   2: "Os sinais de sono continuam. Procure um local seguro e aperte Estou Bem.",
@@ -425,14 +603,19 @@ function showAlert(level) {
   $("#okBtn").classList.toggle("attn", level >= 2);
 }
 function raise(level, now) {
-  if (level <= A.level) return;
-  A.level = level; A.alertAt = now; A.count++;
-  $("#logAlerts").textContent = A.count;
+  if (!G.copilot || level <= A.level) return;
+  A.level = level; A.alertAt = now; ST.alerts++;
   showAlert(level);
   clearTimeout(A.alarmTimer);
   if (level === 3) alarmLoop();
   else playVoice(level);
+  buzz(level === 1 ? 160 : level === 2 ? [220, 100, 220] : [420, 120, 420, 120, 420]);
+  // o aviso acorda o motorista de um cochilo
+  if (G.auto && G.auto.kind === "micro") wake(0.15);
+  // nível 2 manda procurar um local seguro: o posto aparece logo à frente
+  if (level >= 2 && (!G.posto || G.posto.km - S.km > 0.6)) schedulePosto(S.km + 0.5);
 }
+function stopAlarm() { clearTimeout(A.alarmTimer); clearTimeout(A.alarmTimer2); }
 function alarmLoop() {
   if (A.level !== 3) return;
   stopVoices(); beeps(6);
@@ -441,19 +624,20 @@ function alarmLoop() {
 }
 function estouBem() {
   ctx();
-  const now = performance.now() / 1000;
+  const now = G.t;
   const btn = $("#okBtn");
   btn.style.transform = "translateX(-50%) scale(.96)"; setTimeout(() => btn.style.transform = "", 120);
+  if (!S.running) return;
+  if (!G.copilot) { toast("Neste trecho o copiloto está desligado.", 1800, "var(--red)"); return; }
+  if (G.auto && G.auto.kind === "micro") return;     // dormindo não aperta botão
   if (A.level > 0) {
     const rt = now - A.alertAt;
-    A.reactions.push(rt);
-    const avg = A.reactions.reduce((a, b) => a + b, 0) / A.reactions.length;
-    $("#logReact").textContent = avg.toFixed(1).replace(".", ",") + " s";
-    clearTimeout(A.alarmTimer); clearTimeout(A.alarmTimer2);
+    ST.okReact.push(rt);
+    stopAlarm();
     A.level = 0; A.cooldownUntil = now + 4; A.lastEventAt = -1e9;
     showAlert(0);
     playVoice("ok");
-    toast("Estou Bem confirmado em " + rt.toFixed(1).replace(".", ",") + " s. O copiloto continua atento.");
+    toast("Estou Bem confirmado em " + fmtS(rt) + ". O copiloto continua atento.");
   } else {
     toast("Tudo certo. O copiloto continua atento.", 1800);
   }
@@ -461,16 +645,17 @@ function estouBem() {
 $("#okBtn").addEventListener("click", estouBem);
 
 function updateAlerts(closedFor, now, faceOk) {
-  if (now < A.cooldownUntil) return;
+  if (!G.copilot || now < A.cooldownUntil) return;
   // nível 1 volta ao normal depois de 40 s sem novos sinais
   if (A.level === 1 && now - A.lastEventAt > 40 && closedFor === 0) { A.level = 0; showAlert(0); }
   if (A.level === 2 && now - A.alertAt > cfg.okDeadline) raise(3, now);
   if (!faceOk) return;
   if (closedFor >= cfg.t1 && !A.wasLong) {
     A.wasLong = true;
-    if (A.level === 0) raise(1, now);
+    const recurring = now - A.prevLongAt < 60;        // sinais repetidos em pouco tempo sobem direto para o nível 2
+    if (A.level === 0) raise(recurring ? 2 : 1, now);
     else if (A.level === 1 && now - A.alertAt > 1.5) raise(2, now);
-    A.lastEventAt = now;
+    A.lastEventAt = now; A.prevLongAt = now;
   }
   if (closedFor >= cfg.t2 && A.level < 2) raise(2, now);
   if (closedFor >= cfg.t2 + 1.6 && A.level === 2) raise(3, now);
@@ -828,26 +1013,141 @@ function makeCar(color) {
   const b = new THREE.Mesh(new RoundedBoxGeometry(175, 62, 420, 3, 14), paint); b.position.y = 52; g.add(b);
   const top = new THREE.Mesh(new RoundedBoxGeometry(150, 52, 210, 3, 16), paint); top.position.set(0, 106, 20); g.add(top);
   const win = new THREE.Mesh(new THREE.PlaneGeometry(130, 38), new THREE.MeshStandardMaterial({ color: 0x0b1018, roughness: 0.15, metalness: 0.6 })); win.position.set(0, 108, 126); win.rotation.x = -0.35; g.add(win);
-  const tl = new THREE.MeshBasicMaterial({ color: 0xff2a2a });
+  const tl = new THREE.MeshBasicMaterial({ color: 0xa81818, fog: false });
   [-62, 62].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(40, 14, 4), tl); l.position.set(x, 62, 211); g.add(l); });
+  // luz de freio: brilho que acende quando o carro freia
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(260, 70), new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  glow.position.set(0, 64, 216); g.add(glow);
+  const third = new THREE.Mesh(new THREE.BoxGeometry(46, 6, 3), new THREE.MeshBasicMaterial({ color: 0xff3030, fog: false }));
+  third.position.set(0, 126, 132); third.visible = false; g.add(third);
   const plate = new THREE.Mesh(new THREE.PlaneGeometry(40, 13), new THREE.MeshBasicMaterial({ color: 0xdedede })); plate.position.set(0, 40, 211); g.add(plate);
   const tireM = new THREE.MeshStandardMaterial({ color: 0x0b0b0c, roughness: 1 });
   [[-80, -140], [80, -140], [-80, 140], [80, 140]].forEach(([x, z]) => { const t = new THREE.Mesh(new THREE.CylinderGeometry(32, 32, 24, 18), tireM); t.rotation.z = Math.PI / 2; t.position.set(x, 32, z); g.add(t); });
   g.position.y = ROAD_Y;
   g.visible = false;
-  g.userData = { lane: 1, z: -20000, v: 60, active: false };
+  g.userData = { kind: "car", h: 210, lane: 1, z: -20000, v: 60, vTarget: 60, active: false, tl, glow, third };
   world.add(g);
   return g;
 }
 const traffic = CAR_COLORS.map(makeCar);
+
+// jegue parado na pista (comum nas estradas do sertão)
+function makeJegue() {
+  const g = new THREE.Group();
+  const fur = new THREE.MeshStandardMaterial({ color: 0x7a6f64, roughness: 1 });
+  const pale = new THREE.MeshStandardMaterial({ color: 0xb8ae9f, roughness: 1 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x2b2723, roughness: 1 });
+  const body = new THREE.Mesh(new RoundedBoxGeometry(150, 62, 58, 3, 16), fur); body.position.y = 108; g.add(body);
+  const belly = new THREE.Mesh(new RoundedBoxGeometry(110, 20, 52, 2, 8), pale); belly.position.y = 80; g.add(belly);
+  [[-55, -18], [-55, 18], [55, -18], [55, 18]].forEach(([x, z]) => {
+    const l = new THREE.Mesh(new THREE.BoxGeometry(12, 80, 12), fur); l.position.set(x, 44, z); g.add(l);
+    const h = new THREE.Mesh(new THREE.BoxGeometry(14, 10, 14), dark); h.position.set(x, 5, z); g.add(h);
+  });
+  const neck = new THREE.Mesh(new RoundedBoxGeometry(32, 74, 34, 2, 9), fur); neck.position.set(82, 146, 0); neck.rotation.z = -0.5; g.add(neck);
+  const headM = new THREE.Mesh(new RoundedBoxGeometry(64, 30, 30, 2, 9), fur); headM.position.set(110, 172, 0); headM.rotation.z = -0.35; g.add(headM);
+  const muzzle = new THREE.Mesh(new RoundedBoxGeometry(24, 26, 28, 2, 7), pale); muzzle.position.set(140, 160, 0); g.add(muzzle);
+  [-9, 9].forEach(z => { const e = new THREE.Mesh(new THREE.BoxGeometry(8, 36, 6), fur); e.position.set(92, 202, z); e.rotation.set(z > 0 ? 0.25 : -0.25, 0, -0.3); g.add(e); });
+  const tail = new THREE.Mesh(new THREE.BoxGeometry(6, 50, 6), dark); tail.position.set(-80, 96, 0); tail.rotation.z = 0.25; g.add(tail);
+  const eyeM = new THREE.MeshBasicMaterial({ color: 0xfff0b0, fog: false });   // olhos refletindo o farol
+  [-15, 15].forEach(z => { const e = new THREE.Mesh(new THREE.SphereGeometry(3.4, 10, 8), eyeM); e.position.set(114, 178, z); g.add(e); });
+  g.rotation.y = -0.35;
+  g.position.y = ROAD_Y; g.visible = false;
+  g.userData = { kind: "animal", h: 80, lane: 1, z: -20000, v: 0, vTarget: 0, active: false };
+  world.add(g);
+  return g;
+}
+const jegue = makeJegue();
+
+// buraco no asfalto
+function makeHole() {
+  const g = new THREE.Group();
+  const rim = new THREE.Mesh(new THREE.CircleGeometry(80, 28), new THREE.MeshStandardMaterial({ color: 0x77726a, roughness: 1 }));
+  const pit = new THREE.Mesh(new THREE.CircleGeometry(64, 28), new THREE.MeshBasicMaterial({ color: 0x030303 }));
+  [rim, pit].forEach((m, i) => { m.rotation.x = -Math.PI / 2; m.scale.set(1.5, 1, 1); m.position.y = 1 + i * 0.6; g.add(m); });
+  g.position.y = ROAD_Y; g.visible = false;
+  g.userData = { kind: "hole", h: 70, lane: 1, z: -20000, v: 0, vTarget: 0, active: false };
+  world.add(g);
+  return g;
+}
+const hole = makeHole();
+const obstacles = [...traffic, jegue, hole];
+
+// posto de descanso no lado direito (placa azul de serviço + cobertura iluminada)
+const signTex = canvasTex(512, 320, (g, w, h) => {
+  g.fillStyle = "#1f4fae"; rr(g, 0, 0, w, h, 20); g.fill();
+  g.strokeStyle = "#f2f4f8"; g.lineWidth = 10; rr(g, 12, 12, w - 24, h - 24, 14); g.stroke();
+  g.fillStyle = "#f2f4f8"; g.fillRect(52, 70, 70, 120); g.fillStyle = "#1f4fae"; g.fillRect(64, 84, 46, 34);
+  g.fillStyle = "#f2f4f8"; g.fillRect(40, 190, 94, 14); g.fillRect(122, 92, 26, 10); g.fillRect(140, 92, 10, 70);
+  g.font = "bold 70px Arial, sans-serif"; g.textBaseline = "middle"; g.fillText("POSTO", 190, 108);
+  g.font = "bold 46px Arial, sans-serif"; g.fillText("DESCANSO", 190, 180);
+  g.font = "bold 56px Arial, sans-serif"; g.fillText("→", 410, 260);
+});
+const posto = new THREE.Group();
+{
+  const pole = new THREE.MeshStandardMaterial({ color: 0x8b9099, roughness: 0.6, metalness: 0.4 });
+  const board = new THREE.Group();
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(320, 200), new THREE.MeshBasicMaterial({ map: signTex, fog: false }));
+  face.position.y = 330; board.add(face);
+  [-120, 120].forEach(x => { const p = new THREE.Mesh(new THREE.BoxGeometry(10, 330, 10), pole); p.position.set(x, 165, -4); board.add(p); });
+  board.position.set(ROAD_W / 2 + SHOULDER + 220, 0, 12000);   // placa 120 m antes da entrada
+  board.rotation.y = -0.25;
+  posto.add(board);
+  const roofM = new THREE.MeshStandardMaterial({ color: 0xe9ecf0, roughness: 0.5 });
+  const stripe = new THREE.MeshBasicMaterial({ color: 0x2c6be0, fog: false });
+  const lit = new THREE.MeshBasicMaterial({ color: 0xfff3d6, fog: false });
+  const canopy = new THREE.Group();
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(1500, 60, 900), roofM); roof.position.y = 560; canopy.add(roof);
+  const band = new THREE.Mesh(new THREE.BoxGeometry(1510, 26, 910), stripe); band.position.y = 560; canopy.add(band);
+  const under = new THREE.Mesh(new THREE.PlaneGeometry(1400, 820), lit); under.rotation.x = Math.PI / 2; under.position.y = 528; canopy.add(under);
+  const pool = new THREE.Mesh(new THREE.CircleGeometry(900, 40), new THREE.MeshBasicMaterial({ color: 0xfff0cc, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  pool.rotation.x = -Math.PI / 2; pool.scale.set(1, 0.7, 1); pool.position.y = 4; canopy.add(pool);
+  [[-600, -350], [600, -350], [-600, 350], [600, 350]].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.BoxGeometry(40, 530, 40), roofM); p.position.set(x, 265, z); canopy.add(p); });
+  [-250, 250].forEach(x => { const b = new THREE.Mesh(new THREE.BoxGeometry(80, 170, 60), new THREE.MeshStandardMaterial({ color: 0x2c6be0, roughness: 0.5 })); b.position.set(x, 85, 0); canopy.add(b); });
+  canopy.position.set(ROAD_W / 2 + SHOULDER + 1100, 0, -2400);   // 24 m depois da entrada
+  posto.add(canopy);
+  const ramp = new THREE.Mesh(new THREE.PlaneGeometry(700, 5000), new THREE.MeshStandardMaterial({ color: 0x2a2d32, roughness: 0.9 }));
+  ramp.rotation.x = -Math.PI / 2; ramp.position.set(ROAD_W / 2 + SHOULDER + 450, 2, -1500);
+  posto.add(ramp);
+  posto.position.y = ROAD_Y; posto.visible = false;
+  world.add(posto);
+}
+
 const laneX = l => (l - 1) * LANE_W;
-function spawnCar() {
+function setBrake(o, on) {
+  const u = o.userData; if (u.kind !== "car") return;
+  u.tl.color.setHex(on ? 0xff6a6a : 0xa81818);
+  u.glow.material.opacity = on ? 0.9 : 0;
+  u.third.visible = on;
+}
+function place(o, lane, z, v, evt = false) {
+  Object.assign(o.userData, { lane, z, v, vTarget: v, active: true, braking: false, brakeIn: 0, passed: false, hit: false, reacted: false, evt });
+  o.position.x = laneX(lane); o.position.z = z; o.visible = true;
+  setBrake(o, false);
+  return o;
+}
+function deactivate(o) { o.userData.active = false; o.userData.evt = false; o.visible = false; setBrake(o, false); }
+function brake(o, vT) { if (!o || !o.userData.active) return; o.userData.braking = true; o.userData.vTarget = vT; setBrake(o, true); }
+// carros mais rápidos que você (se afastando) não bloqueiam a faixa
+const laneBusy = (l, z0, z1) => obstacles.some(o => { const u = o.userData; return u.active && u.lane === l && u.z > z0 && u.z < z1 && !(u.v > S.speed + 5); });
+function clearAhead(l) {   // quem está se afastando nessa faixa muda de faixa, com seta e tudo
+  obstacles.forEach(o => { const u = o.userData; if (!u.active || u.lane !== l || !(u.v > S.speed + 5) || u.z < -15000 || u.z > 0) return;
+    const alt = [l - 1, l + 1].filter(x => x >= 0 && x < LANES && x !== S.lane && !laneBusy(x, -16000, 2500)); if (alt.length) u.lane = alt[0]; });
+}
+function spawnCar(lane = Math.floor(Math.random() * LANES), v) {
   const free = traffic.find(c => !c.userData.active);
-  if (!free || S.speed < 60) return;
-  const lane = Math.floor(Math.random() * LANES);
-  if (traffic.some(c => c.userData.active && c.userData.lane === lane && c.userData.z < -9000)) return;
-  Object.assign(free.userData, { lane, z: -14000, v: Math.min(S.speed - 18, 45 + Math.random() * 30), active: true });
-  free.position.x = laneX(lane); free.visible = true;
+  if (!free || S.speed < 60) return null;
+  if (laneBusy(lane, -16000, -9000)) return null;
+  return place(free, lane, -14000, v !== undefined ? v : Math.min(S.speed - 18, 45 + Math.random() * 30));
+}
+// eventos que pedem reação rápida
+function spawnEvent(kind, z) {
+  const lane = S.lane;
+  if (laneBusy(lane, -11000, -2500)) return null;
+  clearAhead(lane);
+  if (kind === "brake") { const c = traffic.find(c => !c.userData.active); if (!c) return null; const o = place(c, lane, z || -9000, S.target, true); o.userData.brakeIn = 1.4 + Math.random(); return o; }
+  if (kind === "animal") { if (jegue.userData.active) return null; return place(jegue, lane, z || -9500, 0, true); }
+  if (kind === "hole") { if (hole.userData.active) return null; return place(hole, lane, z || -8500, 0, true); }
+  return null;
 }
 
 /* ---------- Estado da direção ---------- */
@@ -861,16 +1161,41 @@ function resize() {
 }
 addEventListener("resize", resize); resize();
 
+/* ---------- Cochilos e piscadas pesadas (o sono simulado) ---------- */
+function microsleep(dur, opt = {}) {
+  if (!S.running) return;
+  G.auto = { kind: "micro", start: G.t, until: G.t + dur, follow: opt.follow || null, followDone: false, drift: opt.drift ? (S.lane >= 1 ? 1 : -1) : 0 };
+  G.steerQ = []; G.lastMicro = G.t; G.botAt = null; G.threat = null;
+}
+function heavyBlink() { if (G.auto || !S.running) return; G.auto = { kind: "blink", start: G.t, until: G.t + 0.22 + 0.4 * G.F }; }
+function wake(delay = 0.15) { if (G.auto && G.auto.kind === "micro") G.auto.until = Math.min(G.auto.until, G.t + delay); }
+const asleep = () => !!(G.auto && G.auto.kind === "micro");
+
+/* ---------- Comandos (respondem mais devagar com cansaço) ---------- */
+function steerCmd(dir, who) {
+  if (!S.running || S.paused) return;
+  if (G.mode === "demo" && who !== "bot") return;
+  if (asleep()) return;                                   // dormindo, ninguém está no volante
+  const lane = G.steerQ.length ? G.steerQ[G.steerQ.length - 1].lane : S.lane;
+  const to = Math.max(0, Math.min(LANES - 1, lane + dir));
+  if (to === lane) return;
+  G.steerQ.push({ at: G.t + G.F * 0.25, lane: to });
+  if (G.threat && G.threat.u.lane === lane) {            // reflexo: tempo entre o perigo aparecer e a reação
+    ST.reflex.push(G.t - G.threat.t0);
+    G.threat.u.reacted = true; G.threat = null;
+    if (G.mode === "free") G.F = Math.max(0, G.F - 0.04);
+  }
+  G.lastSteerAt = G.t; G.lastFromLane = lane;
+}
+
 /* ---------- Entrada ---------- */
-const keys = {};
-function laneLeft() { S.lane = Math.max(0, S.lane - 1); }
-function laneRight() { S.lane = Math.min(LANES - 1, S.lane + 1); }
 addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (e.code === "Escape" && G.mode === "demo") { goHome(); return; }
   if (e.repeat && e.code !== "KeyC") return;
-  if (e.code === "Space") { e.preventDefault(); estouBem(); }
-  else if (e.code === "ArrowLeft" || e.code === "KeyA") laneLeft();
-  else if (e.code === "ArrowRight" || e.code === "KeyD") laneRight();
+  if (e.code === "Space") { e.preventDefault(); if (G.mode !== "demo") estouBem(); }
+  else if (e.code === "ArrowLeft" || e.code === "KeyA") steerCmd(-1);
+  else if (e.code === "ArrowRight" || e.code === "KeyD") steerCmd(1);
   else if (e.code === "KeyC") eye.simClosed = true;
   else if (e.code === "KeyP") togglePause();
 });
@@ -890,8 +1215,8 @@ cvs.addEventListener("pointerdown", e => {
   ctx();
   ptr.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   ray.setFromCamera(ptr, camera);
-  if (ray.intersectObjects([okCap, okBase], false).length) { okPress = 1; estouBem(); return; }
-  if (e.pointerType !== "mouse") { if (e.clientX < innerWidth / 2) laneLeft(); else laneRight(); }
+  if (ray.intersectObjects([okCap, okBase], false).length) { okPress = 1; if (G.mode !== "demo") estouBem(); return; }
+  if (e.pointerType !== "mouse") steerCmd(e.clientX < innerWidth / 2 ? -1 : 1);
 });
 let okPress = 0;
 
@@ -904,32 +1229,256 @@ function togglePause() {
 }
 $("#resume").addEventListener("click", () => { if (S.paused) togglePause(); });
 
+/* ---------- Metros às cegas ---------- */
+function recordBlind(dur, m, show = true) {
+  ST.blindM += m;
+  if (dur > ST.longest) { ST.longest = dur; ST.longestM = m; }
+  if (show) showBig(fmtM(m), "às cegas · " + fmtS(dur) + " de olhos fechados", dur >= 2 ? "bad" : "", 2800);
+}
+function flushClosure() {
+  if (G.wasClosed) { const dur = G.t - G.closedStart; if (dur >= 0.8) recordBlind(dur, G.closedRun, false); }
+  G.wasClosed = false; G.closedRun = 0; eye.closedSince = null;
+}
+
+/* ---------- Batida, buraco e quase-batida ---------- */
 function crash(msg) {
-  A.crashes++; $("#logCrash").textContent = A.crashes;
-  rumble(false); stopVoices();
-  clearTimeout(A.alarmTimer); clearTimeout(A.alarmTimer2);
-  A.level = 0; showAlert(0); A.cooldownUntil = performance.now() / 1000 + 3;
+  flushClosure();
+  ST.crashes++;
+  thud(true); buzz([320, 80, 320]);
+  rumble(false); stopVoices(); stopAlarm();
+  A.level = 0; showAlert(0); A.cooldownUntil = G.t + 3;
+  G.auto = null; G.steerQ = []; G.threat = null;
+  if (G.mode !== "free") { endSegment({ kind: "crash", msg }); return; }
   S.paused = true; S.drift = 0; S.lane = 1; S.x = 1; S.speed = 40; S.offroadT = 0;
-  traffic.forEach(c => { c.userData.active = false; c.visible = false; });
+  obstacles.forEach(deactivate);
   $("#pauseTitle").textContent = msg;
   $("#pauseText").textContent = "Na estrada, esse seria o momento do acidente. É exatamente o que o copiloto tenta evitar.";
   $("#pause").hidden = false;
-  beeps(2);
+}
+function potholeHit() { ST.holes++; S.shake = 5; thud(false); buzz(90); toast("Buraco! Olho na pista.", 1600, "var(--red)"); }
+function nearMiss() {
+  ST.nearMiss++;
+  const n = $("#nearMiss"); n.classList.add("show");
+  clearTimeout(nearMiss.h); nearMiss.h = setTimeout(() => n.classList.remove("show"), 850);
+  if (!reduceMotion) G.slow = 0.6;
+  whoosh(); buzz(70);
+}
+
+/* ---------- Posto de descanso ---------- */
+function schedulePosto(km) { G.posto = { km }; }
+function updatePosto() {
+  const card = $("#postoCard");
+  if (!G.posto || !S.running) { card.hidden = true; posto.visible = false; return; }
+  const R = (G.posto.km - S.km) * 1000;                  // metros até a entrada
+  posto.visible = R < 400;
+  posto.position.z = -R * 100;
+  card.hidden = R > 1500;
+  $("#postoDist").textContent = R >= 1000 ? (R / 1000).toFixed(1).replace(".", ",") + " km" : Math.max(0, Math.round(R / 10) * 10) + " m";
+  const right = S.lane === LANES - 1;
+  card.classList.toggle("ok", right);
+  $("#postoHint").textContent = right ? "Você está na faixa certa. É só seguir." : "Fique na faixa da direita para entrar.";
+  if (R <= 0) { if (S.x > LANES - 1.45) enterPosto(); else missPosto(); }
+}
+function enterPosto() {
+  ST.posto++; G.posto = null;
+  if (G.mode !== "free") { G.F = 0.1; endSegment({ kind: "posto" }); return; }
+  G.F = 0.08; stopAlarm(); stopVoices(); A.level = 0; showAlert(0);
+  S.speed = 25; obstacles.forEach(deactivate);
+  showBig("Descansou", "Parada no posto · cansaço zerado", "good", 3000);
+  schedulePosto(S.km + 2); G.nextEvt = 12;
+}
+function missPosto() {
+  if (G.mode === "free") { schedulePosto(S.km + 1.5); toast("Você passou do posto. O próximo fica a 1,5 km.", 2600, "var(--amber)"); }
+  else { G.posto = null; toast("Você passou do posto.", 2200, "var(--amber)"); }
+}
+
+/* ---------- Viagem guiada: o mesmo roteiro nos dois trechos ---------- */
+const SEG_LEN = 62;
+const otherLane = l => l !== S.lane ? l : (l + 1) % LANES;
+// carros que ultrapassam você na faixa ao lado (não bloqueiam o roteiro)
+function overtaker(lane) { const c = traffic.find(c => !c.userData.active); if (c && !obstacles.some(o => o.userData.active && o.userData.lane === lane && o.userData.z > -2500)) place(c, lane, 1800, 128); }
+const SCRIPT = [
+  { t: 3.5, fn: () => overtaker(otherLane(0)) },
+  { t: 7, fn: () => overtaker(otherLane(2)) },
+  // carro à frente freia: teste de reflexo, ainda acordado
+  { t: 10, fn: () => { G.brakeCar = spawnEvent("brake", -9000); if (G.brakeCar) G.brakeCar.userData.brakeIn = 0; } },
+  { t: 12.6, fn: () => brake(G.brakeCar, 38) },
+  // jegue parado na pista
+  { t: 18, fn: () => spawnEvent("animal", -9500) },
+  // durante uma piscada pesada, um carro aparece logo à frente
+  { t: 24.75, fn: () => {
+      clearAhead(S.lane);
+      obstacles.forEach(o => { const u = o.userData; if (u.active && u.lane === S.lane && u.z > -7000 && u.z < 600 && !(u.v > S.speed + 5)) deactivate(o); });
+      const c = traffic.find(c => !c.userData.active); if (c) G.leadCar = place(c, S.lane, -3861, S.target, true);
+  } },
+  // cochilo 1: o carro da frente freia enquanto você dorme
+  { t: 27, fn: () => { microsleep(4.0, { follow: G.leadCar }); brake(G.leadCar, 40); } },
+  // cochilo 2: o carro vai saindo da pista
+  { t: 36, fn: () => microsleep(4.0, { drift: true }) },
+  { t: 41, fn: () => overtaker(otherLane(0)) },
+  { t: 46, fn: () => spawnEvent("hole", -8000) },
+  { t: 50, fn: () => overtaker(otherLane(0)) },
+];
+const BLINKS = [16.5, 22, 24.6, 33, 44, 51.5];
+
+function resetDrive() {
+  S.speed = 92; S.km = 0; S.lane = 1; S.x = 1; S.drift = 0; S.offroadT = 0; S.shake = 0; S.spawnIn = 3; S.paused = false;
+  obstacles.forEach(deactivate);
+  stopAlarm(); stopVoices(); rumble(false);
+  Object.assign(A, { level: 0, alertAt: 0, lastEventAt: -1e9, prevLongAt: -1e9, cooldownUntil: 0, wasLong: false });
+  showAlert(0);
+  Object.assign(G, { auto: null, steerQ: [], threat: null, closedRun: 0, wasClosed: false, posto: null, slow: 0, ts: 1, botAt: null, segT: 0, si: 0, bi: 0, leadCar: null, brakeCar: null });
+  eye.closedSince = null; eye.simClosed = false;
+  ST = newStats();
+  $("#pause").hidden = true;
+}
+function setCopilot(on) {
+  G.copilot = on;
+  const b = $("#okBtn");
+  b.classList.toggle("off", !on);
+  b.innerHTML = on ? "Estou Bem <kbd>Espaço</kbd>" : "Copiloto desligado";
+}
+function tripUI() {
+  const t = $("#trip");
+  t.hidden = !G.mode || G.mode === "free";
+  t.classList.toggle("on", G.copilot); t.classList.toggle("off", !G.copilot);
+  $("#tripLbl").textContent = (G.mode === "demo" ? "Demonstração · " : "") + "Trecho " + G.seg + " de 2";
+  $("#tripMode").textContent = G.copilot ? "Com copiloto" : "Sem copiloto";
+  $("#demoExit").hidden = G.mode !== "demo";
+}
+function startSegment(n) {
+  clearTimeout(G.demoTimer);
+  resetDrive();
+  G.seg = n; setCopilot(n === 2); G.F = 0.12;
+  $("#segEnd").hidden = true; $("#start").hidden = true;
+  tripUI();
+  S.running = true;
+  showBig(n === 1 ? "Sem copiloto" : "Com copiloto", "Trecho " + n + " de 2 · o mesmo caminho", n === 1 ? "bad" : "good", 2800);
+}
+function startFree() {
+  clearTimeout(G.demoTimer);
+  G.mode = "free"; resetDrive(); setCopilot(true); G.F = 0.1;
+  G.nextEvt = 12; G.nextBlink = 0; G.lastMicro = G.t;
+  schedulePosto(1.5);
+  $("#segEnd").hidden = true; $("#start").hidden = true;
+  tripUI(); S.running = true;
+}
+function goHome() {
+  clearTimeout(G.demoTimer);
+  S.running = false; resetDrive(); G.mode = null; setCopilot(true); tripUI();
+  $("#segEnd").hidden = true; $("#postoCard").hidden = true; $("#start").hidden = false;
+}
+$("#demoExit").addEventListener("click", goHome);
+
+function endSegment(res) {
+  if (!S.running) return;
+  S.running = false;
+  rumble(false); stopVoices(); stopAlarm(); showAlert(0);
+  flushClosure();
+  G.auto = null;
+  res.at = G.segT; ST.result = res; G.results[G.seg] = ST;
+  $("#postoCard").hidden = true; posto.visible = false;
+  if (G.seg === 1) showInterstitial(); else showComparison();
+}
+function demoCountdown(n, fn) {
+  clearTimeout(G.demoTimer);
+  const tick = () => {
+    const el = $("#demoCount"); if (el) el.textContent = "Continuando sozinho em " + n + " s…";
+    if (n-- <= 0) return fn();
+    G.demoTimer = setTimeout(tick, 1000);
+  };
+  tick();
+}
+const segBox = $("#segBox");
+function showInterstitial() {
+  const r = G.results[1], res = r.result;
+  const title = res.kind === "crash" ? (r.longest >= 2 ? "Você cochilou e bateu" : "Você bateu") : "Fim do trecho 1";
+  const lead = res.kind === "crash"
+    ? res.msg + " Aos " + fmtT(res.at) + " de viagem, sem ninguém para avisar."
+    : "Você chegou ao fim do trecho, mas sem ninguém de olho no seu sono.";
+  segBox.innerHTML = `
+    <div class="brand"><span>Trecho 1 de 2</span><span class="rule" aria-hidden="true"></span><span class="tag" style="color:var(--red)">Sem copiloto</span></div>
+    <h2 id="segTitle">${title}</h2>
+    <p>${lead}</p>
+    <div class="facts">
+      <div class="bad"><b>${r.longest ? fmtS(r.longest) : "–"}</b><span>Maior cochilo</span></div>
+      <div class="bad"><b>${r.longest ? fmtM(r.longestM) : "–"}</b><span>Às cegas</span></div>
+      <div><b>${r.reflex.length ? fmtS(avg(r.reflex)) : "–"}</b><span>Reflexo médio</span></div>
+    </div>
+    <p>Agora o mesmo trecho, com o copiloto ligado no painel.</p>
+    <div class="actions"><button class="primary" id="seg2">Começar trecho 2</button><button class="secondary" id="segHome">Voltar ao início</button></div>
+    ${G.mode === "demo" ? '<p class="countdown" id="demoCount"></p>' : ""}`;
+  $("#segEnd").hidden = false;
+  $("#seg2").onclick = () => startSegment(2);
+  $("#segHome").onclick = goHome;
+  if (G.mode === "demo") demoCountdown(6, () => startSegment(2));
+}
+function showComparison() {
+  const a = G.results[1] || newStats(), b = G.results[2] || newStats();
+  const end = r => !r.result ? "–" : r.result.kind === "crash" ? "Batida aos " + fmtT(r.result.at) : r.result.kind === "posto" ? "Parou no posto aos " + fmtT(r.result.at) : "Chegou ao fim";
+  const lower = (x, y, need) => need && !(x > 0 && y > 0) ? ["", ""] : x < y ? [" best", ""] : y < x ? ["", " best"] : ["", ""];
+  const rows = [
+    ["Como terminou", end(a), end(b), ["", b.result && b.result.kind !== "crash" ? " best" : ""]],
+    ["Maior cochilo", a.longest ? fmtS(a.longest) : "–", b.longest ? fmtS(b.longest) : "–", lower(a.longest, b.longest, true)],
+    ["Pior trecho às cegas", a.longest ? fmtM(a.longestM) : "–", b.longest ? fmtM(b.longestM) : "–", lower(a.longestM, b.longestM, true)],
+    ["Alertas do copiloto", "Desligado", String(b.alerts), ["", ""]],
+    ["Reação ao alerta", "–", b.okReact.length ? fmtS(avg(b.okReact)) : "–", ["", ""]],
+    ["Reflexo nos perigos", a.reflex.length ? fmtS(avg(a.reflex)) : "–", b.reflex.length ? fmtS(avg(b.reflex)) : "–", ["", ""]],
+    ["Batidas", String(a.crashes), String(b.crashes), lower(a.crashes, b.crashes)],
+  ];
+  segBox.innerHTML = `
+    <div class="brand"><span>${G.mode === "demo" ? "Demonstração" : "Viagem guiada"}</span><span class="rule" aria-hidden="true"></span><span class="tag">Resultado</span></div>
+    <h2 id="segTitle">O mesmo trecho, duas viagens</h2>
+    <div class="cmp" role="table">
+      <div class="h" role="columnheader"></div><div class="h off" role="columnheader">Sem copiloto</div><div class="h on" role="columnheader">Com copiloto</div>
+      ${rows.map(r => `<div role="rowheader">${r[0]}</div><div class="${r[3][0].trim()}" role="cell">${r[1]}</div><div class="${r[3][1].trim()}" role="cell">${r[2]}</div>`).join("")}
+    </div>
+    <p>O copiloto não tira o sono: ele encurta o cochilo e avisa a hora de parar. Quem resolve é o descanso.</p>
+    <div class="actions"><button class="primary" id="again">${G.mode === "demo" ? "Ver a demonstração de novo" : "Repetir a viagem guiada"}</button><button class="secondary" id="toFree">Jogo livre</button></div>`;
+  $("#segEnd").hidden = false;
+  $("#again").onclick = () => startSegment(1);
+  $("#toFree").onclick = startFree;
+}
+
+/* ---------- Demonstração: o jogo dirige sozinho ---------- */
+const laneFree = l => l >= 0 && l < LANES && !laneBusy(l, -6500, 900) && !obstacles.some(o => { const u = o.userData; return u.active && u.lane === l && u.z > -1500 && u.z < 1000; });
+function bot() {
+  if (G.mode !== "demo" || !S.running || S.paused || asleep()) return;
+  if (A.level >= 2 && G.t - A.alertAt > 1.6) estouBem();
+  if (G.botAt !== null) { if (G.t >= G.botAt) { steerCmd(G.botDir, "bot"); G.botAt = null; } return; }
+  if (G.steerQ.length) return;
+  // reage ao perigo com um reflexo de motorista atento (~0,6 s)
+  const danger = G.threat || obstacles.some(o => { const u = o.userData; return u.active && u.lane === S.lane && u.z > -7200 && u.z < -250 && (u.kind !== "car" || u.braking || S.speed - u.v > 12); });
+  if (danger) {
+    const dirs = [-1, 1].filter(d => laneFree(S.lane + d));
+    if (dirs.length) { G.botDir = G.posto && dirs.includes(1) ? 1 : dirs[0]; G.botAt = Math.max(G.t, (G.threat ? G.threat.t0 : G.t) + 0.6); }
+    return;
+  }
+  if (G.posto && (G.posto.km - S.km) * 1000 < 380 && S.lane < LANES - 1 && laneFree(S.lane + 1)) { G.botDir = 1; G.botAt = G.t + 0.5; }
 }
 
 /* ================== Laço principal ================== */
-let last = performance.now(), clusterClock = 0;
-function loop(nowMs) {
-  const dt = Math.min((nowMs - last) / 1000, 0.05); last = nowMs;
-  const now = nowMs / 1000;
+let last = performance.now(), clusterClock = 0, fxClock = 0, blurNow = -1;
+function loop(nowMs) { frame(nowMs, true); requestAnimationFrame(loop); }
+function frame(nowMs, draw) {
+  const rdt = Math.max(0, Math.min((nowMs - last) / 1000, 0.05)); last = nowMs;
+  // câmera lenta rápida na quase-batida
+  if (G.slow > 0) G.slow -= rdt;
+  G.ts += ((G.slow > 0 ? 0.35 : 1) - G.ts) * Math.min(1, rdt * 10);
+  const live = S.running && !S.paused;
+  const dt = rdt * G.ts * G.dev;
+  if (live) G.t += dt;
+  const now = G.t;
 
   detect(nowMs);
 
+  if (G.auto && now >= G.auto.until) G.auto = null;
+  const autoClosed = !!G.auto && live;
   let closed;
-  const faceOk = eye.simClosed || !camOn ? true : eye.faceOk;
-  if (eye.simClosed) { eye.open = eye.open * 0.6; closed = true; }
+  const faceOk = eye.simClosed || !camOn || autoClosed ? true : eye.faceOk;
+  if (eye.simClosed || autoClosed) { eye.open = eye.open * 0.6; closed = true; }
   else if (!camOn) { eye.open = eye.open * 0.7 + 0.3; closed = false; }
-  else closed = eye.faceOk && eye.baseline && eye.open < cfg.thr;
+  else closed = !!(eye.faceOk && eye.baseline && eye.open < cfg.thr);
   if (closed) { if (eye.closedSince === null) eye.closedSince = now; } else eye.closedSince = null;
   const closedFor = eye.closedSince === null ? 0 : now - eye.closedSince;
 
@@ -938,7 +1487,8 @@ function loop(nowMs) {
   $("#openFill").style.background = closed ? "var(--red)" : "var(--ok)";
   $("#openPct").textContent = (camOn && !eye.baseline) ? "–" : pct + "%";
   $("#closedFor").textContent = closedFor.toFixed(1).replace(".", ",") + " s";
-  if (eye.simClosed) setFaceState("warn", "Simulando olhos fechados");
+  if (asleep()) setFaceState("bad", "Cochilo simulado");
+  else if (eye.simClosed) setFaceState("warn", "Simulando olhos fechados");
   else if (!camOn) setFaceState("", "Sem câmera");
   else if (!landmarker) setFaceState("warn", "Carregando detector…");
   else if (eye.calibrating) setFaceState("warn", "Calibrando…");
@@ -946,11 +1496,44 @@ function loop(nowMs) {
   else setFaceState(closed ? "bad" : "ok", closed ? "Olhos fechados" : "Monitorando");
 
   // pálpebras: a tela escurece de cima e de baixo conforme os olhos fecham
-  const lid = closedFor > 0 ? Math.min(1, 0.35 + closedFor * 0.25) : Math.max(0, 1 - Math.min(1, eye.open) * 1.4);
-  $("#lids").style.setProperty("--lid", lid.toFixed(3));
+  let lidT = closedFor > 0 ? Math.min(1, 0.35 + closedFor * 0.25) : Math.max(0, 1 - Math.min(1, eye.open) * 1.4);
+  if (autoClosed) lidT = 1;
+  G.lid += (lidT - G.lid) * Math.min(1, rdt * 14);
+  $("#lids").style.setProperty("--lid", G.lid.toFixed(3));
 
-  if (S.running && !S.paused) {
+  if (live) {
     updateAlerts(closedFor, now, faceOk);
+
+    // ao abrir os olhos: quantos metros o carro andou às cegas
+    if (closed) { if (!G.wasClosed) { G.wasClosed = true; G.closedStart = now; G.closedRun = 0; } G.closedRun += S.speed / 3.6 * dt; }
+    else if (G.wasClosed) { const dur = now - G.closedStart; if (dur >= 0.8) recordBlind(dur, G.closedRun); G.wasClosed = false; G.closedRun = 0; }
+
+    // cansaço: sobe com o tempo na estrada monótona
+    if (G.mode === "free") G.F = Math.min(1, G.F + dt / 140 + (closed ? dt * 0.03 : 0));
+    else G.F = Math.min(0.92, 0.12 + G.segT * 0.016);
+
+    if (G.mode !== "free") {
+      G.segT += dt;
+      while (G.si < SCRIPT.length && G.segT >= SCRIPT[G.si].t) SCRIPT[G.si++].fn();
+      while (G.bi < BLINKS.length && G.segT >= BLINKS[G.bi]) { heavyBlink(); G.bi++; }
+    } else {
+      if (!G.auto && G.F > 0.4 && now >= G.nextBlink) { heavyBlink(); G.nextBlink = now + 6 + Math.random() * 8 * (1.4 - G.F); }
+      if (!G.auto && G.F > 0.6 && now - G.lastMicro > 14 && Math.random() < (G.F - 0.55) * 0.12 * dt) microsleep(2.8 + Math.random() * 1.6, { drift: Math.random() < 0.6 });
+      G.nextEvt -= dt;
+      if (G.nextEvt <= 0) { spawnEvent(["brake", "brake", "animal", "hole"][Math.floor(Math.random() * 4)]); G.nextEvt = 12 + Math.random() * 9; }
+      if (cfg.obstacles) { S.spawnIn -= dt; if (S.spawnIn <= 0) { spawnCar(); S.spawnIn = 1.8 + Math.random() * 2; } }
+    }
+
+    // no cochilo 1, o carro da frente fica na sua faixa (a tela está escura)
+    if (asleep() && G.auto.follow && !G.auto.followDone && now - G.auto.start > 0.3) {
+      const o = G.auto.follow, u = o.userData; G.auto.followDone = true;
+      if (u.active && u.lane !== S.lane) {
+        obstacles.forEach(x => { const v = x.userData; if (x !== o && v.active && v.lane === S.lane && v.z > -6000 && v.z < 600) deactivate(x); });
+        u.lane = S.lane; o.position.x = laneX(S.lane);
+      }
+    }
+
+    while (G.steerQ.length && G.steerQ[0].at <= now) S.lane = G.steerQ.shift().lane;
 
     S.speed += (S.target - S.speed) * Math.min(1, dt * 0.7);
     const cmps = S.speed * 27.78;                       // km/h → cm/s
@@ -958,65 +1541,124 @@ function loop(nowMs) {
     roadTex.offset.y = (roadTex.offset.y + cmps * dt / TILE) % 1;
     postOffset = (postOffset + cmps * dt) % (POSTS * POST_GAP);
 
-    if (cfg.drift && closedFor > 1.0) S.drift += dt * 0.2; else S.drift = Math.max(0, S.drift - dt * 1.5);
+    // desvio: cochilo com deriva, ou olhos fechados pela câmera/tecla C
+    const micro = asleep();
+    if (micro && G.auto.drift) S.drift += G.auto.drift * 0.45 * dt;
+    else if (cfg.drift && closedFor > 1.0 && !micro) S.drift += dt * 0.2;
+    else if (!closed) S.drift = Math.sign(S.drift) * Math.max(0, Math.abs(S.drift) - dt * 1.5);
     const target = S.lane + S.drift;
     const prevX = S.x;
-    S.x += (target - S.x) * Math.min(1, dt * 3.2);
+    S.x += (target - S.x) * Math.min(1, dt * 3.2 * (1 - 0.35 * G.F));
     S.steerVel = (S.x - prevX) / Math.max(dt, 1e-3);
-    if (closedFor <= 1.0 && S.drift === 0 && S.x > LANES - 1) S.lane = LANES - 1;
 
+    // faixa sonora do acostamento: "tum-tum", tremor e vibração
+    const onEdge = S.x > LANES - 0.78 || S.x < -0.22;
     const offroad = S.x > LANES - 0.45 || S.x < -0.55;
-    rumble(offroad);
-    if (offroad) { S.shake = 1.6; S.offroadT += dt; } else { S.offroadT = 0; S.shake *= 0.9; }
-    if (S.offroadT > 1.4 || S.x > LANES + 0.3) crash("Você saiu da pista.");
+    rumble(onEdge);
+    if (onEdge) { S.shake = Math.max(S.shake, offroad ? 1.8 : 0.8); G.edgeClock += dt; if (G.edgeClock > 0.3) { G.edgeClock = 0; buzz(25); } }
+    else S.shake *= Math.pow(0.02, dt);
+    if (offroad) S.offroadT += dt; else S.offroadT = 0;
+    if (micro && S.offroadT > 0.4) wake(0.1);           // a trepidação acorda
+    if (S.offroadT > 1.4 || S.x > LANES + 0.3 || S.x < -1.3) crash("Você saiu da pista.");
 
-    if (cfg.obstacles) { S.spawnIn -= dt; if (S.spawnIn <= 0) { spawnCar(); S.spawnIn = 1.8 + Math.random() * 2; } }
-    for (const c of traffic) {
-      const u = c.userData; if (!u.active) continue;
+    if (S.running) for (const o of obstacles) {
+      const u = o.userData; if (!u.active) continue;
+      if (u.brakeIn > 0) { u.brakeIn -= dt; if (u.brakeIn <= 0) brake(o, 38); }
+      if (u.v > u.vTarget) u.v = Math.max(u.vTarget, u.v - 25 * dt);
       u.z += (S.speed - u.v) * 27.78 * dt;
-      c.position.z = u.z;
-      if (u.z > 2000 || u.z < -16000) { u.active = false; c.visible = false; continue; }
-      // para-choque dianteiro ~ z -230; traseira do outro carro = z + 210
-      if (u.z + 210 > -260 && u.z - 210 < -120 && Math.abs(laneX(u.lane) - laneX(S.x)) < 190) { crash("Batida no carro da frente."); break; }
+      o.position.z = u.z;
+      o.position.x += (laneX(u.lane) - o.position.x) * Math.min(1, dt * 1.6);   // troca de faixa suave
+      if (u.z > 2000 || u.z < -16000) { deactivate(o); continue; }
+      const lat = Math.abs(laneX(u.lane) - laneX(S.x));
+      // para-choque dianteiro ~ z -230; traseira do obstáculo = z + h
+      // quem ultrapassa por trás (mais rápido que você) não conta: sem retrovisor no jogo, seria injusto
+      if (u.z + u.h > -260 && u.z - u.h < -120 && lat < (u.kind === "hole" ? 150 : 190) && !(u.v > S.speed + 5)) {
+        if (u.kind === "hole") { if (!u.hit) { u.hit = true; potholeHit(); } }
+        else { crash(u.kind === "animal" ? "Batida no jegue que estava na pista." : "Batida no carro da frente."); break; }
+      }
+      if (!u.passed && u.z - u.h > -120) {
+        u.passed = true;
+        if (u.kind !== "hole" && S.speed - u.v > 25 && (lat < 300 || (u.lane === G.lastFromLane && now - G.lastSteerAt < 1.3))) nearMiss();
+      }
     }
+
+    if (S.running) {
+      // perigo à vista na sua faixa: começa a contar o reflexo
+      if (G.threat && (!G.threat.u.active || G.threat.u.passed)) G.threat = null;
+      if (!G.threat && !closed && !G.auto) for (const o of obstacles) {
+        const u = o.userData;
+        if (u.active && u.evt && !u.reacted && !u.passed && u.lane === S.lane && (u.kind === "car" ? u.braking : u.z > -7500)) { G.threat = { u, t0: now }; break; }
+      }
+      updatePosto();
+      bot();
+      if (G.mode !== "free" && G.segT >= SEG_LEN) endSegment({ kind: "time" });
+    }
+  }
+
+  // efeitos do cansaço: bordas escuras, visão embaçada, som abafado
+  const fat = G.mode ? G.F : 0;
+  $("#tired").style.opacity = Math.max(0, Math.min(1, (fat - 0.25) / 0.7)).toFixed(3);
+  const blur = fat > 0.6 && !reduceMotion ? Math.round((fat - 0.6) / 0.4 * 14) / 10 : 0;
+  if (blur !== blurNow) { blurNow = blur; cvs.style.filter = blur ? `blur(${blur}px)` : ""; }
+  fxClock += rdt;
+  if (fxClock > 0.1) {
+    fxClock = 0;
+    setRoadNoise(live ? (0.035 + S.speed / 96 * 0.05) * (closed ? 0.45 : 1) : 0, 1400 - 1050 * fat);
+    const fp = Math.round(fat * 100);
+    $("#fatPct").textContent = fp + "%"; $("#fatFill").style.width = fp + "%";
+    $("#fatFill").style.background = fat < 0.35 ? "var(--ok)" : fat < 0.65 ? "var(--amber)" : fat < 0.85 ? "var(--orange)" : "var(--red)";
+    $("#logAlerts").textContent = G.copilot ? ST.alerts : "–";
+    $("#logCrash").textContent = ST.crashes;
+    $("#logReact").textContent = ST.reflex.length ? fmtS(avg(ST.reflex)) : "–";
+    if (G.mode && G.mode !== "free") { $("#tripTime").textContent = fmtT(SEG_LEN - G.segT); $("#tripFill").style.width = Math.min(100, G.segT / SEG_LEN * 100) + "%"; }
   }
 
   // mundo se desloca de lado (o carro troca de faixa)
   world.position.x = -laneX(S.x);
   headL.target.position.x = -5 + S.steerVel * 120;
-  steer.rotation.z = THREE.MathUtils.lerp(steer.rotation.z, -S.steerVel * 1.6, Math.min(1, dt * 8));
+  steer.rotation.z = THREE.MathUtils.lerp(steer.rotation.z, -S.steerVel * 1.6, Math.min(1, rdt * 8));
 
-  // câmera: olhar livre de leve + tremor no acostamento
-  look.yaw += (look.ty - look.yaw) * Math.min(1, dt * 4);
-  look.pitch += (look.tp - look.pitch) * Math.min(1, dt * 4);
+  // câmera: olhar livre de leve + tremor no acostamento e no buraco
+  look.yaw += (look.ty - look.yaw) * Math.min(1, rdt * 4);
+  look.pitch += (look.tp - look.pitch) * Math.min(1, rdt * 4);
   camera.position.copy(EYE);
   if (S.shake > 0.05 && !reduceMotion) camera.position.add(new THREE.Vector3((Math.random() - .5) * S.shake, (Math.random() - .5) * S.shake, 0));
   camera.rotation.set(look.pitch, look.yaw + S.steerVel * 0.03, 0, "YXZ");
 
-  if (okPress > 0) { okPress = Math.max(0, okPress - dt * 3); okCap.position.z = 0.55 - Math.sin(okPress * Math.PI) * 0.35; }
-  if (waveQueue > 0) { waveClock -= dt; if (waveClock <= 0) { const w = waves.find(x => x.userData.t < 0); if (w) { w.userData.t = 0; waveQueue--; waveClock = 0.45; } } }
-  waves.forEach(w => { if (w.userData.t < 0) return; w.userData.t += dt; const k = w.userData.t / 1.2; w.scale.setScalar(1 + k * 3.2); w.material.opacity = Math.max(0, .75 * (1 - k)); if (k >= 1) { w.userData.t = -1; w.material.opacity = 0; } });
+  if (okPress > 0) { okPress = Math.max(0, okPress - rdt * 3); okCap.position.z = 0.55 - Math.sin(okPress * Math.PI) * 0.35; }
+  if (waveQueue > 0) { waveClock -= rdt; if (waveClock <= 0) { const w = waves.find(x => x.userData.t < 0); if (w) { w.userData.t = 0; waveQueue--; waveClock = 0.45; } } }
+  waves.forEach(w => { if (w.userData.t < 0) return; w.userData.t += rdt; const k = w.userData.t / 1.2; w.scale.setScalar(1 + k * 3.2); w.material.opacity = Math.max(0, .75 * (1 - k)); if (k >= 1) { w.userData.t = -1; w.material.opacity = 0; } });
 
-  clusterClock += dt;
+  clusterClock += rdt;
   if (clusterClock > 0.1) { clusterClock = 0; drawCluster(S.speed, 0.8 + S.speed / 42); }
   updatePosts();
 
-  renderer.render(scene, camera);
+  if (draw) renderer.render(scene, camera);
   $("#spd").textContent = Math.round(S.speed);
   $("#dist").textContent = S.km.toFixed(1).replace(".", ",");
-  requestAnimationFrame(loop);
 }
+// só para testes: avança o jogo quadro a quadro (sem depender da aba visível)
+function step(secs, fps = 30) { let t = Math.max(last, performance.now()); const n = Math.round(secs * fps); for (let i = 0; i < n; i++) { t += 1000 / fps; frame(t, i === n - 1); } }
 
 /* ================== Início ================== */
+document.querySelectorAll(".modes button").forEach(b => b.addEventListener("click", () => {
+  G.pick = b.dataset.mode;
+  document.querySelectorAll(".modes button").forEach(x => x.setAttribute("aria-checked", x === b ? "true" : "false"));
+  const demo = G.pick === "demo";
+  $("#camField").hidden = demo; $("#startNoCam").hidden = demo;
+  $("#startCam").textContent = demo ? "Assistir à demonstração" : "Iniciar com a câmera";
+}));
 async function begin(useCam) {
-  ctx();
+  ctx(); roadNoise();
+  if (G.pick === "demo") useCam = false;
   $("#startErr").hidden = true;
-  if (useCam) {
+  if (useCam && !(camOn && landmarker)) {
     try {
       $("#startCam").textContent = "Abrindo a câmera…";
-      await startCamera($("#camSelect").value);
+      if (!camOn) await startCamera($("#camSelect").value);
       $("#startCam").textContent = "Carregando o detector…";
-      landmarker = await loadLandmarker();
+      if (!landmarker) landmarker = await loadLandmarker();
+      $("#startCam").textContent = "Iniciar com a câmera";
     } catch (e) {
       $("#startCam").textContent = "Iniciar com a câmera";
       $("#startErr").textContent = e && e.name === "NotAllowedError"
@@ -1027,11 +1669,12 @@ async function begin(useCam) {
     }
   }
   $("#start").hidden = true;
-  if (useCam) await calibrate();
-  else toast("Sem câmera: segure C para simular olhos fechados.", 3500, "var(--amber)");
-  S.running = true;
+  if (useCam && !eye.baseline) await calibrate();
+  else if (!useCam && G.pick === "free" && !camOn) toast("Sem câmera: segure C para simular olhos fechados.", 3500, "var(--amber)");
+  G.mode = G.pick;
+  if (G.mode === "free") startFree(); else startSegment(1);
 }
-$("#startCam").addEventListener("click", () => begin(true));
+$("#startCam").addEventListener("click", () => begin(G.pick !== "demo"));
 $("#startNoCam").addEventListener("click", () => begin(false));
 if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) listCams();
 
@@ -1039,7 +1682,7 @@ $("#thrMark").style.left = (cfg.thr * 100) + "%";
 updatePosts();
 $("#loading").remove();
 window.__ready = true;
-window.__sim = { S, A, eye, raise, cfg, camera, look, traffic, spawnCar };
+window.__sim = { S, A, G, eye, raise, cfg, camera, look, traffic, obstacles, spawnCar, spawnEvent, microsleep, startSegment, startFree, goHome, step, get ST() { return ST; } };
 requestAnimationFrame(loop);
 
 </script>

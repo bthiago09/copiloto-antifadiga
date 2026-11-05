@@ -12,10 +12,18 @@ Mockup 3D interativo do dispositivo antifadiga: uma câmera no painel que acompa
 - Na parte 4 (alto-falante), ouça os 3 níveis de alerta. O botão âmbar no volante é o "Estou Bem".
 
 ## Como usar o Protótipo 2
-- Clique em **Iniciar com a câmera** e permita o acesso. Para usar a câmera do celular, conecte-o como webcam (DroidCam ou Vincular ao Celular) e escolha-o na lista, ou abra o link direto no celular.
-- Olhe para a estrada por 3 segundos para calibrar.
-- **← →** ou **A D** trocam de faixa. Feche os olhos por alguns segundos para ver os alertas.
-- **Espaço** = Estou Bem · **P** pausa · **Segure C** simula olhos fechados (útil se a câmera falhar na apresentação).
+Escolha um modo na tela inicial:
+- **Viagem guiada (2 min):** o mesmo trecho duas vezes, primeiro sem o copiloto e depois com ele. No fim, uma tela compara as duas viagens (cochilo mais longo, metros às cegas, alertas, reflexo, batidas).
+- **Jogo livre:** estrada sem fim, com cansaço que sobe com o tempo, perigos aleatórios e postos para descansar.
+- **Demonstração:** o jogo dirige sozinho pela viagem guiada. Serve de plano B se a câmera ou a luz da sala falharem.
+
+Durante o jogo:
+- O **cansaço** sobe aos poucos: as bordas da tela escurecem, vêm piscadas pesadas e cochilos. No cochilo a tela apaga e o carro anda sozinho.
+- Ao abrir os olhos, o jogo mostra quantos **metros você andou às cegas**.
+- Desvie do **carro que freia**, do **jegue na pista** e dos **buracos**: o jogo mede o seu reflexo.
+- No nível 2 o copiloto manda procurar um local seguro e aparece um **posto de descanso**: fique na faixa da direita para entrar.
+- **← →** ou **A D** trocam de faixa (no celular, toque nos lados da tela) · **Espaço** = Estou Bem · **P** pausa · **Segure C** simula olhos fechados.
+- Com a câmera: clique em **Iniciar com a câmera**, permita o acesso e olhe para a estrada por 3 segundos para calibrar. Para usar a câmera do celular, conecte-o como webcam (DroidCam ou Vincular ao Celular) ou abra o link direto no celular.
 - A imagem da câmera é processada no próprio navegador e nunca é gravada nem enviada.
 
 Protótipo de baixa fidelidade · Equipe 1 · Empreendedorismo para Ciência da Computação · UNIVASF Salgueiro · 2026.2
