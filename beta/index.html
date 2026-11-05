@@ -180,7 +180,7 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 .fat { display: grid; gap: 6px; }
 .fat .row > span { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .fat .fill { transition: width .2s linear, background .3s; }
-#tired { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; background: radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 38%, rgba(0,0,0,.94) 100%); }
+#tired { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; background: radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 30%, rgba(0,0,0,.96) 100%); }
 #bigMsg {
   position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%) scale(.96); z-index: 7; pointer-events: none;
   padding: 14px 22px; display: grid; justify-items: center; gap: 6px; text-align: center; max-width: calc(100% - 32px);
@@ -219,7 +219,7 @@ body:has(#alert.show) #postoCard { top: 104px; }
 .cmp > div:nth-child(3n+2), .cmp > div:nth-child(3n) { border-left: 1px solid var(--line-dark); color: var(--ink); font: 600 16px var(--font-display); font-variant-numeric: tabular-nums; }
 .cmp > .h { border-top: 0; font: 600 11px var(--font-body) !important; letter-spacing: .14em; text-transform: uppercase; }
 .cmp > .h.off { color: var(--red); } .cmp > .h.on { color: var(--ok); }
-.cmp > .best { color: var(--ok); }
+.cmp > div.best:nth-child(n) { color: var(--ok); }
 .facts { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--r); }
 .facts > div { padding: 10px 12px; display: grid; gap: 2px; }
 .facts > div + div { border-left: 1px solid var(--line-dark); }
@@ -1156,7 +1156,7 @@ addEventListener("resize", resize); resize();
 function microsleep(dur, opt = {}) {
   if (!S.running) return;
   G.auto = { kind: "micro", start: G.t, until: G.t + dur, follow: opt.follow || null, followDone: false, drift: opt.drift ? (S.lane >= 1 ? 1 : -1) : 0 };
-  G.steerQ = []; G.lastMicro = G.t; G.botAt = null;
+  G.steerQ = []; G.lastMicro = G.t; G.botAt = null; G.threat = null;
 }
 function heavyBlink() { if (G.auto || !S.running) return; G.auto = { kind: "blink", start: G.t, until: G.t + 0.22 + 0.4 * G.F }; }
 function wake(delay = 0.15) { if (G.auto && G.auto.kind === "micro") G.auto.until = Math.min(G.auto.until, G.t + delay); }
@@ -1393,7 +1393,7 @@ function showInterstitial() {
     <p>${lead}</p>
     <div class="facts">
       <div class="bad"><b>${r.longest ? fmtS(r.longest) : "–"}</b><span>Maior cochilo</span></div>
-      <div class="bad"><b>${fmtM(r.blindM)}</b><span>Às cegas</span></div>
+      <div class="bad"><b>${r.longest ? fmtM(r.longestM) : "–"}</b><span>Às cegas</span></div>
       <div><b>${r.reflex.length ? fmtS(avg(r.reflex)) : "–"}</b><span>Reflexo médio</span></div>
     </div>
     <p>Agora o mesmo trecho, com o copiloto ligado no painel.</p>
@@ -1411,7 +1411,7 @@ function showComparison() {
   const rows = [
     ["Como terminou", end(a), end(b), ["", b.result && b.result.kind !== "crash" ? " best" : ""]],
     ["Maior cochilo", a.longest ? fmtS(a.longest) : "–", b.longest ? fmtS(b.longest) : "–", lower(a.longest, b.longest)],
-    ["Distância às cegas", fmtM(a.blindM), fmtM(b.blindM), lower(a.blindM, b.blindM)],
+    ["Pior trecho às cegas", a.longest ? fmtM(a.longestM) : "–", b.longest ? fmtM(b.longestM) : "–", lower(a.longestM, b.longestM)],
     ["Alertas do copiloto", "Desligado", String(b.alerts), ["", ""]],
     ["Reação ao alerta", "–", b.okReact.length ? fmtS(avg(b.okReact)) : "–", ["", ""]],
     ["Reflexo nos perigos", a.reflex.length ? fmtS(avg(a.reflex)) : "–", b.reflex.length ? fmtS(avg(b.reflex)) : "–", ["", ""]],
@@ -1574,7 +1574,7 @@ function frame(nowMs, draw) {
     if (S.running) {
       // perigo à vista na sua faixa: começa a contar o reflexo
       if (G.threat && (!G.threat.u.active || G.threat.u.passed)) G.threat = null;
-      if (!G.threat && !closed) for (const o of obstacles) {
+      if (!G.threat && !closed && !G.auto) for (const o of obstacles) {
         const u = o.userData;
         if (u.active && u.evt && !u.reacted && !u.passed && u.lane === S.lane && (u.kind === "car" ? u.braking : u.z > -7500)) { G.threat = { u, t0: now }; break; }
       }
