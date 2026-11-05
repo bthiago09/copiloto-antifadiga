@@ -1118,7 +1118,12 @@ function place(o, lane, z, v, evt = false) {
 }
 function deactivate(o) { o.userData.active = false; o.userData.evt = false; o.visible = false; setBrake(o, false); }
 function brake(o, vT) { if (!o || !o.userData.active) return; o.userData.braking = true; o.userData.vTarget = vT; setBrake(o, true); }
-const laneBusy = (l, z0, z1) => obstacles.some(o => { const u = o.userData; return u.active && u.lane === l && u.z > z0 && u.z < z1; });
+// carros mais rápidos que você (se afastando) não bloqueiam a faixa
+const laneBusy = (l, z0, z1) => obstacles.some(o => { const u = o.userData; return u.active && u.lane === l && u.z > z0 && u.z < z1 && !(u.v > S.speed + 5); });
+function clearAhead(l) {   // quem está se afastando nessa faixa muda de faixa, com seta e tudo
+  obstacles.forEach(o => { const u = o.userData; if (!u.active || u.lane !== l || !(u.v > S.speed + 5) || u.z < -15000 || u.z > 0) return;
+    const alt = [l - 1, l + 1].filter(x => x >= 0 && x < LANES && x !== S.lane && !laneBusy(x, -16000, 2500)); if (alt.length) u.lane = alt[0]; });
+}
 function spawnCar(lane = Math.floor(Math.random() * LANES), v) {
   const free = traffic.find(c => !c.userData.active);
   if (!free || S.speed < 60) return null;
@@ -1129,6 +1134,7 @@ function spawnCar(lane = Math.floor(Math.random() * LANES), v) {
 function spawnEvent(kind, z) {
   const lane = S.lane;
   if (laneBusy(lane, -11000, -2500)) return null;
+  clearAhead(lane);
   if (kind === "brake") { const c = traffic.find(c => !c.userData.active); if (!c) return null; const o = place(c, lane, z || -9000, S.target, true); o.userData.brakeIn = 1.4 + Math.random(); return o; }
   if (kind === "animal") { if (jegue.userData.active) return null; return place(jegue, lane, z || -9500, 0, true); }
   if (kind === "hole") { if (hole.userData.active) return null; return place(hole, lane, z || -8500, 0, true); }
@@ -1281,7 +1287,7 @@ function missPosto() {
 const SEG_LEN = 62;
 const otherLane = l => l !== S.lane ? l : (l + 1) % LANES;
 // carros que ultrapassam você na faixa ao lado (não bloqueiam o roteiro)
-function overtaker(lane) { const c = traffic.find(c => !c.userData.active); if (c && !laneBusy(lane, -1500, 2500)) place(c, lane, 1800, 114); }
+function overtaker(lane) { const c = traffic.find(c => !c.userData.active); if (c && !obstacles.some(o => o.userData.active && o.userData.lane === lane && o.userData.z > -2500)) place(c, lane, 1800, 128); }
 const SCRIPT = [
   { t: 3.5, fn: () => overtaker(otherLane(0)) },
   { t: 7, fn: () => overtaker(otherLane(2)) },
@@ -1292,7 +1298,8 @@ const SCRIPT = [
   { t: 18, fn: () => spawnEvent("animal", -9500) },
   // durante uma piscada pesada, um carro aparece logo à frente
   { t: 24.75, fn: () => {
-      obstacles.forEach(o => { const u = o.userData; if (u.active && u.lane === S.lane && u.z > -7000 && u.z < 600) deactivate(o); });
+      clearAhead(S.lane);
+      obstacles.forEach(o => { const u = o.userData; if (u.active && u.lane === S.lane && u.z > -7000 && u.z < 600 && !(u.v > S.speed + 5)) deactivate(o); });
       const c = traffic.find(c => !c.userData.active); if (c) G.leadCar = place(c, S.lane, -3861, S.target, true);
   } },
   // cochilo 1: o carro da frente freia enquanto você dorme
@@ -1550,6 +1557,7 @@ function frame(nowMs, draw) {
       if (u.v > u.vTarget) u.v = Math.max(u.vTarget, u.v - 25 * dt);
       u.z += (S.speed - u.v) * 27.78 * dt;
       o.position.z = u.z;
+      o.position.x += (laneX(u.lane) - o.position.x) * Math.min(1, dt * 1.6);   // troca de faixa suave
       if (u.z > 2000 || u.z < -16000) { deactivate(o); continue; }
       const lat = Math.abs(laneX(u.lane) - laneX(S.x));
       // para-choque dianteiro ~ z -230; traseira do obstáculo = z + h
