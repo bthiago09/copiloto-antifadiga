@@ -197,7 +197,7 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 #postoCard[hidden] { display: none; }
 #postoCard .label::before { background: #5b8cf0; }
 #postoCard .row > span { font-size: 14px; }
-#postoCard b { font: 700 26px/.9 var(--font-display); color: #9dbbff; }
+#postoCard b { font: 700 26px/.9 var(--font-display); color: #9dbbff; white-space: nowrap; }
 #postoCard .hint { font-size: 12.5px; color: var(--muted); }
 #postoCard.ok .hint { color: var(--ok); }
 #okBtn.off { opacity: .4; }
@@ -227,7 +227,7 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 .facts .bad b { color: var(--red); }
 .countdown { font-size: 13px; color: var(--muted) !important; }
 
-@media (max-height: 760px) {
+@media (max-height: 840px) {
   #start .intro, #start .caption { display: none; }
 }
 @media (max-height: 680px) {
