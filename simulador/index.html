@@ -186,7 +186,7 @@ select { font: inherit; color: var(--ink); background: var(--surface-2); border:
   <div id="camWrap">
     <video id="video" playsinline muted></video>
     <canvas id="overlay"></canvas>
-    <div class="nocam" id="nocam">Câmera desligada.<br>Segure <b>C</b> para simular olhos fechados.</div>
+    <div class="nocam" id="nocam"><div>Câmera desligada.<br>Segure <b>C</b> para simular olhos fechados.</div></div>
   </div>
   <div>
     <div class="row" style="margin-bottom:6px"><span>Abertura dos olhos</span><b id="openPct">–</b></div>
@@ -686,11 +686,11 @@ function loop(nowMs) {
     S.km += S.speed / 3600 * dt;
 
     // carro: segue a faixa; com olhos fechados, desvia devagar para a direita
-    if (cfg.drift && closedFor > 0.5) S.drift += dt * 0.45;
+    if (cfg.drift && closedFor > 1.0) S.drift += dt * 0.2;
     else S.drift = Math.max(0, S.drift - dt * 1.5);
     const target = S.lane + S.drift;
     S.x += (target - S.x) * Math.min(1, dt * 6);
-    if (closedFor <= 0.5 && S.drift === 0 && S.x > LANES - 1) S.lane = LANES - 1;
+    if (closedFor <= 1.0 && S.drift === 0 && S.x > LANES - 1) S.lane = LANES - 1;
 
     const offroad = S.x > LANES - 0.45 || S.x < -0.55;
     rumble(offroad);
