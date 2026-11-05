@@ -1432,16 +1432,17 @@ function showComparison() {
 }
 
 /* ---------- Demonstração: o jogo dirige sozinho ---------- */
-const laneFree = l => l >= 0 && l < LANES && !laneBusy(l, -6500, 900);
+const laneFree = l => l >= 0 && l < LANES && !laneBusy(l, -6500, 900) && !obstacles.some(o => { const u = o.userData; return u.active && u.lane === l && u.z > -1500 && u.z < 1000; });
 function bot() {
   if (G.mode !== "demo" || !S.running || S.paused || asleep()) return;
   if (A.level >= 2 && G.t - A.alertAt > 1.6) estouBem();
   if (G.botAt !== null) { if (G.t >= G.botAt) { steerCmd(G.botDir, "bot"); G.botAt = null; } return; }
   if (G.steerQ.length) return;
-  const danger = obstacles.some(o => { const u = o.userData; return u.active && u.lane === S.lane && u.z > -7200 && u.z < -250 && (u.kind !== "car" || u.braking || S.speed - u.v > 12); });
+  // reage ao perigo com um reflexo de motorista atento (~0,6 s)
+  const danger = G.threat || obstacles.some(o => { const u = o.userData; return u.active && u.lane === S.lane && u.z > -7200 && u.z < -250 && (u.kind !== "car" || u.braking || S.speed - u.v > 12); });
   if (danger) {
     const dirs = [-1, 1].filter(d => laneFree(S.lane + d));
-    if (dirs.length) { G.botDir = G.posto && dirs.includes(1) ? 1 : dirs[0]; G.botAt = G.t + 0.65; }
+    if (dirs.length) { G.botDir = G.posto && dirs.includes(1) ? 1 : dirs[0]; G.botAt = Math.max(G.t, (G.threat ? G.threat.t0 : G.t) + 0.6); }
     return;
   }
   if (G.posto && (G.posto.km - S.km) * 1000 < 380 && S.lane < LANES - 1 && laneFree(S.lane + 1)) { G.botDir = 1; G.botAt = G.t + 0.5; }
@@ -1561,9 +1562,10 @@ function frame(nowMs, draw) {
       if (u.z > 2000 || u.z < -16000) { deactivate(o); continue; }
       const lat = Math.abs(laneX(u.lane) - laneX(S.x));
       // para-choque dianteiro ~ z -230; traseira do obstáculo = z + h
-      if (u.z + u.h > -260 && u.z - u.h < -120 && lat < (u.kind === "hole" ? 150 : 190)) {
+      // quem ultrapassa por trás (mais rápido que você) não conta: sem retrovisor no jogo, seria injusto
+      if (u.z + u.h > -260 && u.z - u.h < -120 && lat < (u.kind === "hole" ? 150 : 190) && !(u.v > S.speed + 5)) {
         if (u.kind === "hole") { if (!u.hit) { u.hit = true; potholeHit(); } }
-        else { crash(u.kind === "animal" ? "Batida no jegue que estava na pista." : u.v > S.speed ? "Batida ao trocar de faixa." : "Batida no carro da frente."); break; }
+        else { crash(u.kind === "animal" ? "Batida no jegue que estava na pista." : "Batida no carro da frente."); break; }
       }
       if (!u.passed && u.z - u.h > -120) {
         u.passed = true;
