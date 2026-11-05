@@ -587,24 +587,18 @@ function canvasTex(w, h, draw) {
 function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 
 const LANE_W = 360, LANES = 3, ROAD_W = LANE_W * LANES, SHOULDER = 180, TILE = 1200;   // cm
-const roadTex = canvasTex(512, 512, (g, w, h) => {
+const roadTex = canvasTex(1024, 1024, (g, w, h) => {
   g.fillStyle = "#25282d"; g.fillRect(0, 0, w, h);
-  for (let i = 0; i < 2600; i++) { const v = 30 + Math.random() * 30; g.fillStyle = `rgba(${v},${v},${v + 4},0.5)`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
-  const total = ROAD_W + SHOULDER * 2, px = w / total;
-  const sx = SHOULDER * px;
-  // acostamento um pouco mais claro + zebrado
-  g.fillStyle = "#2d3036"; g.fillRect(0, 0, sx, h); g.fillRect(w - sx, 0, sx, h);
-  for (let y = 0; y < h; y += 64) {
-    g.fillStyle = (y / 64) % 2 ? "#a52a2a" : "#d9d9d9";
-    g.fillRect(sx - 26, y, 22, 64); g.fillRect(w - sx + 4, y, 22, 64);
+  for (let i = 0; i < 9000; i++) { const v = 28 + Math.random() * 34; g.fillStyle = `rgba(${v},${v},${v + 4},0.45)`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+  const total = ROAD_W + SHOULDER * 2, px = w / total, sx = SHOULDER * px;
+  g.fillStyle = "#2e3137"; g.fillRect(0, 0, sx, h); g.fillRect(w - sx, 0, sx, h);
+  for (let y = 0; y < h; y += 128) {               // zebrado vermelho e branco junto ao acostamento
+    g.fillStyle = (y / 128) % 2 ? "#a52a2a" : "#d9d9d9";
+    g.fillRect(sx - 40, y, 32, 128); g.fillRect(w - sx + 8, y, 32, 128);
   }
-  // linhas de borda contínuas
-  g.fillStyle = "#e9e9e4"; g.fillRect(sx, 0, 7, h); g.fillRect(w - sx - 7, 0, 7, h);
-  // faixas tracejadas
-  for (let l = 1; l < LANES; l++) {
-    const x = sx + LANE_W * px * l - 3;
-    g.fillRect(x, 0, 6, h * 0.45);
-  }
+  g.fillStyle = "#ecece6";
+  g.fillRect(sx, 0, 9, h); g.fillRect(w - sx - 9, 0, 9, h);           // bordas contínuas (~13 cm)
+  for (let l = 1; l < LANES; l++) g.fillRect(sx + LANE_W * px * l - 4, 0, 8, h * 0.5);   // tracejado (6 m)
 });
 roadTex.wrapS = THREE.ClampToEdgeWrapping; roadTex.wrapT = THREE.RepeatWrapping;
 const ROAD_LEN = 40000;
@@ -820,10 +814,10 @@ const traffic = CAR_COLORS.map(makeCar);
 const laneX = l => (l - 1) * LANE_W;
 function spawnCar() {
   const free = traffic.find(c => !c.userData.active);
-  if (!free) return;
+  if (!free || S.speed < 60) return;
   const lane = Math.floor(Math.random() * LANES);
   if (traffic.some(c => c.userData.active && c.userData.lane === lane && c.userData.z < -9000)) return;
-  Object.assign(free.userData, { lane, z: -14000, v: 45 + Math.random() * 30, active: true });
+  Object.assign(free.userData, { lane, z: -14000, v: Math.min(S.speed - 18, 45 + Math.random() * 30), active: true });
   free.position.x = laneX(lane); free.visible = true;
 }
 
