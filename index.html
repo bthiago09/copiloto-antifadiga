@@ -6,171 +6,162 @@
 <title>Copiloto Antifadiga no Painel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@500,600,700&f[]=general-sans@300,400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Rubik:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Mundo único: cabine em grafite, âmbar de sinalização rodoviária como destaque.
-     Layout: cena 3D em tela cheia; controles à esquerda; ficha da parte selecionada flutuando embaixo à direita. */
+  /* Editorial cinematográfico com a paleta da cabine: grafite fosco + âmbar rodoviário.
+     Regras: tipografia grande em caixa alta, bordas de 1px, cantos de no máximo 4px, sem sombra, sem gradiente, sem pílula.
+     Layout: cena 3D em tela cheia; coluna de controles à esquerda que sempre cabe na altura da tela; ficha da parte à direita. */
   --bg: #0f1216;
-  --surface: rgba(20, 24, 30, 0.94);
-  --surface-2: #1c222b;
+  --surface: #13171d;
+  --surface-2: #1a1f27;
   --line: #313945;
+  --line-dark: #222831;
   --ink: #eef1f5;
-  --muted: #b3bbc8;
+  --muted: #a9b1be;
   --amber: #f2a93b;
+  --amber-dim: #6b4a1a;
   --on-amber: #1a1206;
   --ok: #5fc48a;
-  --alert: #ef5350;
-  --font-display: "Outfit", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Rubik", "Segoe UI", system-ui, sans-serif;
-  --r-lg: 16px;
-  --r-md: 11px;
+  --font-display: "Clash Grotesk", "Outfit", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "General Sans", "Rubik", "Segoe UI", system-ui, sans-serif;
+  --r: 4px;
+  --gap: clamp(8px, 1.4vh, 14px);
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
-body {
-  background: var(--bg); color: var(--ink);
-  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
-  overflow: hidden; -webkit-font-smoothing: antialiased;
-}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; overflow: hidden; -webkit-font-smoothing: antialiased; }
 #stage { position: fixed; inset: 0; }
 #stage canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
-svg.i { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ---------- Painel de controles ---------- */
+/* textura de ruído fixa sobre a tela inteira */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 20; opacity: .03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+button, .navlink { font: inherit; color: var(--ink); cursor: pointer; background: transparent; border: 1px solid var(--line); border-radius: var(--r); transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease); }
+button:hover { background: var(--surface-2); border-color: #4a5463; }
+button:focus-visible, .navlink:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.label { display: flex; align-items: center; gap: 10px; margin: 0; font: 600 11px var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.label::before { content: ""; width: 24px; height: 1px; background: var(--amber); flex: none; }
+.label.plain::before { display: none; }
+
+/* ---------- Coluna de controles ---------- */
 #panel {
-  position: fixed; top: 16px; left: 16px; width: 320px; max-height: calc(100% - 32px);
-  display: flex; flex-direction: column; gap: 16px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
-  padding: 18px; overflow-y: auto; z-index: 5;
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  position: fixed; top: 16px; left: 16px; bottom: 16px; width: clamp(280px, 23vw, 340px); z-index: 5;
+  display: flex; flex-direction: column; gap: var(--gap);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  padding: clamp(14px, 2vh, 20px); overflow: hidden;
 }
-.eyebrow { font-family: var(--font-display); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--amber); margin: 0; }
-h1 { font-family: var(--font-display); font-weight: 700; font-size: 25px; line-height: 1.15; margin: 4px 0 0; text-wrap: balance; }
+.brand { display: flex; justify-content: space-between; align-items: center; gap: 10px; font: 500 11px var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.brand .rule { flex: 1; height: 1px; background: var(--line-dark); }
+.brand .tag { color: var(--amber); }
 
-#status {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px;
-}
-#status .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); flex: none; box-shadow: 0 0 0 4px rgba(95,196,138,.18); transition: background .2s var(--ease), box-shadow .2s var(--ease); }
-#status.closed .dot { background: var(--muted); box-shadow: 0 0 0 4px rgba(179,187,200,.15); }
-#status strong { display: block; font-weight: 600; font-size: 15px; }
-#status span { color: var(--muted); font-size: 13.5px; }
+.headline { position: relative; margin: 0; font: 700 clamp(30px, min(3.3vw, 5.6vh), 46px)/.85 var(--font-display); letter-spacing: -.02em; text-transform: uppercase; }
+.headline span { display: block; }
+.headline .back { position: absolute; inset: 0; transform: translate(3px, 3px); color: transparent; -webkit-text-stroke: 1px var(--amber-dim); pointer-events: none; }
+.headline .front { position: relative; color: var(--ink); }
+.sub { margin: 0; color: var(--muted); font-size: 13.5px; font-weight: 400; line-height: 1.45; }
 
-.label-sm { font-family: var(--font-display); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.navlink { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 0 14px; text-decoration: none; background: var(--amber); border-color: var(--amber); color: var(--on-amber); font: 600 13px var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+.navlink:hover { background: #ffb954; border-color: #ffb954; }
 
-button {
-  font: inherit; color: var(--ink); cursor: pointer;
-  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md);
-  transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
-}
-button:hover { background: #252d38; }
-button:active { background: #2c3542; }
-button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+#status { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--r); font-size: 13px; }
+#status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; }
+#status.closed .dot { background: var(--muted); }
+#status strong { display: block; font-weight: 600; }
+#status span { color: var(--muted); font-size: 12.5px; }
 
-.toggles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.toggle {
-  min-height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  font-size: 13.5px; font-weight: 500; padding: 8px 6px; text-align: center; line-height: 1.2;
-}
-.toggle[aria-pressed="true"] { border-color: var(--amber); color: var(--amber); background: rgba(242,169,59,.08); }
-.toggle kbd { font: 600 11px var(--font-display); color: var(--muted); border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; }
+.toggles { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--r); }
+.toggle { border: 0; border-radius: 0; min-height: 46px; padding: 6px 4px; display: grid; place-items: center; gap: 2px; font: 600 11.5px var(--font-body); letter-spacing: .08em; text-transform: uppercase; line-height: 1.2; }
+.toggle + .toggle { border-left: 1px solid var(--line); }
+.toggle kbd { font: 500 10.5px var(--font-body); color: var(--muted); letter-spacing: 0; }
+.toggle[aria-pressed="true"] { color: var(--amber); background: rgba(242,169,59,.07); }
 
-.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: #11151a; border: 1px solid var(--line); border-radius: var(--r-md); padding: 4px; }
-.seg button { border: 0; background: transparent; min-height: 40px; font-size: 14px; font-weight: 500; border-radius: 8px; }
-.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--amber); box-shadow: inset 0 0 0 1px var(--line); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--r); margin-top: 8px; }
+.seg button { border: 0; border-radius: 0; min-height: 38px; font: 500 13px var(--font-body); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--amber); color: var(--on-amber); font-weight: 600; }
 
-#parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-#parts button {
-  width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; text-align: left;
-  background: transparent; border: 1px solid transparent; padding: 6px 8px; font-size: 14.5px;
-}
-#parts button:hover { background: var(--surface-2); }
-#parts button[aria-current="true"] { background: var(--surface-2); border-color: var(--line); }
-.num {
-  width: 24px; height: 24px; border-radius: 50%; flex: none; display: grid; place-items: center;
-  font: 700 12.5px var(--font-display); background: #2c3440; color: var(--ink);
-}
-[aria-current="true"] .num { background: var(--amber); color: var(--on-amber); }
-.navlink { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 12px; border-radius: var(--r-md); background: var(--amber); color: var(--on-amber); text-decoration: none; font: 600 15px var(--font-display); transition: background .18s var(--ease); }
-.navlink:hover { background: #ffb954; }
-.navlink:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-#panel footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 12px; }
+.parts-block { min-height: 0; display: flex; flex-direction: column; }
+#parts { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line-dark); border-left: 1px solid var(--line-dark); }
+#parts li { border-right: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark); }
+#parts button { width: 100%; min-height: clamp(34px, 4.6vh, 42px); display: flex; align-items: center; gap: 8px; text-align: left; border: 0; border-radius: 0; padding: 4px 8px; font-size: 13px; line-height: 1.2; }
+#parts button[aria-current="true"] { background: rgba(242,169,59,.08); color: var(--amber); }
+.num { font: 600 13px var(--font-display); color: var(--muted); min-width: 16px; font-variant-numeric: tabular-nums; }
+[aria-current="true"] .num { color: var(--amber); }
+#panel footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line-dark); color: var(--muted); font-size: 11px; letter-spacing: .04em; line-height: 1.4; }
 
 /* ---------- Ficha da parte ---------- */
 #card {
-  position: fixed; right: 16px; bottom: 16px; width: min(420px, calc(100% - 32px)); z-index: 5;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
-  padding: 16px 18px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  display: grid; gap: 10px;
+  position: fixed; right: 16px; bottom: 16px; width: min(400px, calc(100% - 32px)); z-index: 5;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 16px 18px; display: grid; gap: 10px;
 }
-#card .top { display: flex; align-items: center; gap: 12px; }
-#card .top .num { width: 30px; height: 30px; font-size: 14px; background: var(--amber); color: var(--on-amber); }
-#card h2 { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.2; margin: 0; flex: 1; text-wrap: balance; }
-#card p { margin: 0; color: #d6dbe3; font-size: 15.5px; }
-#card .evidence { display: flex; gap: 8px; align-items: flex-start; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
-#card .evidence svg { width: 18px; height: 18px; margin-top: 2px; color: var(--amber); }
-.nav { display: flex; gap: 6px; }
-.icon-btn { width: 40px; height: 40px; display: grid; place-items: center; padding: 0; }
-#count { font: 600 13px var(--font-display); color: var(--muted); min-width: 34px; text-align: center; align-self: center; }
-#alertBtns { display: none; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#card .top { display: flex; align-items: flex-start; gap: 12px; }
+#card .bignum { font: 700 44px/.85 var(--font-display); color: var(--amber); font-variant-numeric: tabular-nums; }
+#card h2 { margin: 2px 0 0; flex: 1; font: 600 19px/1.05 var(--font-display); text-transform: uppercase; letter-spacing: -.005em; text-wrap: balance; }
+#card p { margin: 0; color: #d3d8e0; font-size: 14.5px; font-weight: 400; }
+#card .evidence { display: grid; gap: 4px; border-top: 1px solid var(--line-dark); padding-top: 10px; color: var(--muted); font-size: 13px; }
+.nav { display: flex; border: 1px solid var(--line); border-radius: var(--r); }
+.nav button { border: 0; border-radius: 0; width: 38px; height: 36px; display: grid; place-items: center; padding: 0; }
+#count { font: 600 12px var(--font-body); color: var(--muted); min-width: 36px; display: grid; place-items: center; border-left: 1px solid var(--line); border-right: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+#alertBtns { display: none; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--r); }
 #alertBtns.show { display: grid; }
-#alertBtns button { min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14.5px; font-weight: 500; }
-#alertBtns button[data-level="3"] { border-color: rgba(239,83,80,.55); }
-#alertBtns button.playing { border-color: var(--amber); color: var(--amber); }
+#alertBtns button { border: 0; border-radius: 0; min-height: 42px; font: 600 12px var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+#alertBtns button + button { border-left: 1px solid var(--line); }
+#alertBtns button.playing { background: var(--amber); color: var(--on-amber); }
 
-/* ---------- Marcadores ---------- */
+/* ---------- Marcadores na cena ---------- */
 .pin {
-  position: fixed; z-index: 4; left: 0; top: 0;
-  min-width: 32px; height: 32px; padding: 0 0; border-radius: 16px;
-  display: flex; align-items: center; gap: 0;
-  font: 700 13.5px var(--font-display);
-  background: rgba(24, 29, 37, .92); border: 2px solid rgba(238,241,245,.7); color: var(--ink);
-  transition: opacity .2s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
-  will-change: transform;
+  position: fixed; z-index: 4; left: 0; top: 0; height: 28px; min-width: 28px; padding: 0; border-radius: var(--r);
+  display: flex; align-items: center; background: rgba(15,18,22,.92); border: 1px solid rgba(238,241,245,.6); color: var(--ink);
+  font: 600 13px var(--font-display); transition: opacity .2s var(--ease);
 }
-.pin .n { width: 28px; text-align: center; flex: none; }
-.pin .t { max-width: 0; overflow: hidden; white-space: nowrap; font: 500 13.5px var(--font-body); transition: max-width .25s var(--ease), padding .25s var(--ease); }
-.pin:hover .t, .pin.active .t { max-width: 260px; padding-right: 12px; }
+.pin .n { width: 26px; text-align: center; flex: none; }
+.pin .t { max-width: 0; overflow: hidden; white-space: nowrap; font: 500 12.5px var(--font-body); text-transform: uppercase; letter-spacing: .06em; transition: max-width .25s var(--ease), padding .25s var(--ease); }
+.pin:hover .t, .pin.active .t { max-width: 240px; padding-right: 10px; }
 .pin.active { background: var(--amber); border-color: var(--amber); color: var(--on-amber); z-index: 6; }
 .pin.occluded { opacity: .35; }
 .pin.hidden { display: none; }
 
-#hint {
-  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 4;
-  display: flex; align-items: center; gap: 10px; padding: 9px 14px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-  font-size: 14px; color: var(--muted); transition: opacity .4s var(--ease);
-}
+#hint { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 4; padding: 8px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); transition: opacity .4s var(--ease); white-space: nowrap; }
 #hint.gone { opacity: 0; pointer-events: none; }
-#hint b { color: var(--ink); font-weight: 500; }
-
-#toast {
-  position: fixed; left: 50%; top: 64px; transform: translate(-50%, -6px); z-index: 7; max-width: min(520px, calc(100% - 32px));
-  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--amber);
-  border-radius: var(--r-md); padding: 11px 16px; font-size: 15px;
-  opacity: 0; transition: opacity .25s var(--ease), transform .25s var(--ease); pointer-events: none;
-}
+#hint b { color: var(--ink); font-weight: 600; }
+#toast { position: fixed; left: 50%; top: 60px; transform: translate(-50%, -6px); z-index: 7; max-width: min(520px, calc(100% - 32px)); background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: var(--r); padding: 10px 14px; font-size: 14px; opacity: 0; transition: opacity .25s var(--ease), transform .25s var(--ease); pointer-events: none; }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--muted); z-index: 3; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; text-align: center; padding: 24px; }
 
-#loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--muted); z-index: 3; font-size: 15px; text-align: center; padding: 24px; }
-
-@media (max-width: 820px) {
-  #panel { top: 8px; left: 8px; right: 8px; width: auto; padding: 12px; gap: 10px; }
-  #panel .parts-block, #panel footer, #status span { display: none; }
-  h1 { font-size: 19px; }
-  .toggle { min-height: 52px; flex-direction: row; font-size: 13px; }
+/* telas baixas (notebook com zoom, projetor 768p) */
+@media (max-height: 760px) and (min-width: 821px) {
+  .sub, #status span, #panel footer { display: none; }
   .toggle kbd { display: none; }
-  #card { right: 8px; left: 8px; bottom: 8px; width: auto; padding: 12px 14px 14px; }
-  #card p { font-size: 14.5px; }
+  .toggle { min-height: 38px; }
+}
+@media (max-height: 600px) and (min-width: 821px) {
+  .parts-block { display: none; }
+}
+/* celular e tablet em pé */
+@media (max-width: 820px) {
+  #panel { top: 8px; left: 8px; right: 8px; bottom: auto; width: auto; padding: 12px; gap: 8px; }
+  .headline { font-size: 26px; }
+  .headline span { display: inline; }
+  .sub, .parts-block, #panel footer, #status span, .brand .rule, .toggle kbd { display: none; }
+  .navlink { min-height: 40px; }
+  .toggle { min-height: 40px; }
+  #card { left: 8px; right: 8px; bottom: 8px; width: auto; padding: 12px 14px; gap: 8px; }
+  #card .bignum { font-size: 34px; }
+  #card p { font-size: 13.5px; }
+  #card .evidence { display: none; }
   #hint { display: none; }
-  #toast { top: auto; bottom: 200px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; }
-}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 </style>
 <script type="importmap">
 { "imports": {
@@ -198,25 +189,30 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 <div id="loading">Carregando o modelo 3D…</div>
 
 <aside id="panel" aria-label="Controles do protótipo">
+  <div class="brand"><span>Equipe 1</span><span class="rule" aria-hidden="true"></span><span class="tag">Protótipo 01</span></div>
   <div>
-    <p class="eyebrow">Protótipo 1 · Equipe 1</p>
-    <h1>Copiloto antifadiga no painel</h1>
+    <p class="label">Mockup do dispositivo</p>
+    <h1 class="headline" aria-label="Copiloto antifadiga">
+      <span class="back" aria-hidden="true"><span>Copiloto</span><span>antifadiga</span></span>
+      <span class="front"><span>Copiloto</span><span>antifadiga</span></span>
+    </h1>
   </div>
-  <a class="navlink" href="https://bthiago09.github.io/copiloto-antifadiga/simulador/">Testar no simulador (Protótipo 2)<svg class="i" aria-hidden="true"><use href="#i-right"/></svg></a>
+  <p class="sub">A câmera no painel acompanha os olhos do motorista e avisa por voz antes do microssono.</p>
+  <a class="navlink" href="https://bthiago09.github.io/copiloto-antifadiga/simulador/"><span>Testar no simulador</span><span aria-hidden="true">→</span></a>
 
   <div id="status" role="status">
     <i class="dot" aria-hidden="true"></i>
     <div><strong id="statusTitle">Processando no aparelho</strong><span id="statusText">0 imagens gravadas · 0 enviadas · sem internet</span></div>
   </div>
 
-  <div class="toggles">
-    <button class="toggle" id="btnLid" aria-pressed="false"><svg class="i"><use href="#i-lock"/></svg><span id="lidLabel">Fechar tampa</span><kbd>T</kbd></button>
-    <button class="toggle" id="btnNight" aria-pressed="false"><svg class="i"><use id="nightIcon" href="#i-moon"/></svg><span id="nightLabel">Modo noite</span><kbd>N</kbd></button>
-    <button class="toggle" id="btnSpin" aria-pressed="false"><svg class="i"><use href="#i-rotate"/></svg><span>Girar</span><kbd>G</kbd></button>
+  <div class="toggles" role="group" aria-label="Ações">
+    <button class="toggle" id="btnLid" aria-pressed="false"><span id="lidLabel">Fechar tampa</span><kbd>T</kbd></button>
+    <button class="toggle" id="btnNight" aria-pressed="false"><span id="nightLabel">Modo noite</span><kbd>N</kbd><svg class="i" hidden><use id="nightIcon" href="#i-moon"/></svg></button>
+    <button class="toggle" id="btnSpin" aria-pressed="false"><span>Girar</span><kbd>G</kbd></button>
   </div>
 
   <div>
-    <p class="label-sm" id="viewLabel">Vista</p>
+    <p class="label" id="viewLabel">Vista</p>
     <div class="seg" role="group" aria-labelledby="viewLabel">
       <button data-view="device" aria-pressed="true">Aparelho</button>
       <button data-view="driver" aria-pressed="false">Motorista</button>
@@ -225,7 +221,7 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
   </div>
 
   <div class="parts-block">
-    <p class="label-sm">Partes do aparelho</p>
+    <p class="label">Partes do aparelho</p>
     <ul id="parts"></ul>
   </div>
 
@@ -234,24 +230,24 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
 <section id="card" aria-live="polite" aria-label="Parte selecionada">
   <div class="top">
-    <span class="num" id="cardNum">1</span>
+    <span class="bignum" id="cardNum">1</span>
     <h2 id="cardTitle"></h2>
     <div class="nav">
-      <button class="icon-btn" id="prev" aria-label="Parte anterior"><svg class="i"><use href="#i-left"/></svg></button>
+      <button id="prev" aria-label="Parte anterior">←</button>
       <span id="count">1/8</span>
-      <button class="icon-btn" id="next" aria-label="Próxima parte"><svg class="i"><use href="#i-right"/></svg></button>
+      <button id="next" aria-label="Próxima parte">→</button>
     </div>
   </div>
   <p id="cardText"></p>
   <div id="alertBtns" role="group" aria-label="Ouvir os níveis de alerta">
-    <button data-level="1"><svg class="i"><use href="#i-chat"/></svg>Nível 1</button>
-    <button data-level="2"><svg class="i"><use href="#i-vol"/></svg>Nível 2</button>
-    <button data-level="3"><svg class="i"><use href="#i-alarm"/></svg>Nível 3</button>
+    <button data-level="1">Nível 1</button>
+    <button data-level="2">Nível 2</button>
+    <button data-level="3">Nível 3</button>
   </div>
-  <div class="evidence"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg><span id="cardEvidence"></span></div>
+  <div class="evidence"><p class="label">Da pesquisa de campo</p><span id="cardEvidence"></span></div>
 </section>
 
-<div id="hint"><svg class="i" aria-hidden="true"><use href="#i-mouse"/></svg><span><b>Arraste</b> para girar · <b>role</b> para aproximar · <b>← →</b> troca a parte</span></div>
+<div id="hint"><b>Arraste</b> para girar · <b>Role</b> para aproximar · <b>← →</b> troca a parte</div>
 <div id="toast" role="status"></div>
 
 <script>
@@ -274,28 +270,28 @@ const $ = s => document.querySelector(s);
 
 /* ---------- Conteúdo ---------- */
 const PARTS = [
-  { id: "lens", title: "Câmera voltada para o rosto",
+  { id: "lens", short: "Câmera", title: "Câmera voltada para o rosto",
     text: "Acompanha a abertura dos olhos e a duração das piscadas. Cada imagem é analisada na hora e descartada da memória; nenhum vídeo é guardado.",
     evidence: "13 dos 21 motoristas ouvidos percebem o sono pelos olhos pesados ou piscando mais." },
-  { id: "lid", title: "Tampa de privacidade",
+  { id: "lid", short: "Tampa", title: "Tampa de privacidade",
     text: "Tampa deslizante sobre a lente. Fechada, a câmera fica fisicamente coberta e o motorista vê, sem precisar confiar em ninguém, que nada está sendo captado.",
     evidence: "14 dos 21 só aceitariam uma câmera na cabine com garantias de privacidade." },
-  { id: "seal", title: "Selo “Não grava. Não envia.”",
+  { id: "seal", short: "Selo", title: "Selo “Não grava. Não envia.”",
     text: "Promessa visível na frente do aparelho: as imagens não são gravadas e não saem do veículo. A privacidade é a condição para o motorista aceitar o produto.",
     evidence: "12 dos 21 pediram garantia de que as imagens não seriam usadas para punição ou vigilância." },
-  { id: "speaker", title: "Alto-falante dos alertas por voz",
+  { id: "speaker", short: "Alto-falante", title: "Alto-falante dos alertas por voz",
     text: "O copiloto fala com o motorista em 3 níveis: um aviso calmo, um aviso firme que pede o “Estou Bem” e um alarme forte. Toque para ouvir.",
     evidence: "11 dos 21 preferem ser avisados por voz; só 1 pediu alarme alto.", alerts: true },
-  { id: "body", title: "Corpo fosco e sem luzes",
+  { id: "body", short: "Corpo fosco", title: "Corpo fosco e sem luzes",
     text: "Acabamento escuro e fosco, sem LEDs nem tela. Não acende, não pisca e não reflete no para-brisa à noite. Ligue o modo noite para conferir.",
     evidence: "17 dos 21 dizem que luz forte na cabine ou de outros veículos atrapalha à noite." },
-  { id: "ok", title: "Botão “Estou Bem” no volante",
+  { id: "ok", short: "Estou Bem", title: "Botão “Estou Bem” no volante",
     text: "Ao alcance do polegar. O motorista confirma que está desperto e o alerta para. Se os sinais de sono continuarem, o alerta volta mais forte.",
     evidence: "Toque no botão âmbar do volante para testar." },
-  { id: "mount", title: "Suporte articulado",
+  { id: "mount", short: "Suporte", title: "Suporte articulado",
     text: "Base adesiva com articulação: o ângulo da câmera se ajusta à altura de cada motorista e ao formato de cada painel.",
     evidence: "Pensado para carro, van e caminhão." },
-  { id: "power", title: "Alimentação 12 V, sem internet",
+  { id: "power", short: "Energia 12 V", title: "Alimentação 12 V, sem internet",
     text: "Ligado na tomada do veículo. O aparelho não depende de sinal de celular: todo o processamento acontece dentro dele, inclusive em trechos sem cobertura.",
     evidence: "Em trechos rurais o sinal de internet é instável." }
 ];
@@ -653,7 +649,8 @@ PARTS.forEach((p, i) => {
   const li = document.createElement("li");
   const b = document.createElement("button");
   b.id = "part-" + p.id;
-  b.innerHTML = `<span class="num">${i + 1}</span><span>${p.title}</span>`;
+  b.innerHTML = `<span class="num">${String(i + 1).padStart(2, "0")}</span><span>${p.short}</span>`;
+  b.title = p.title;
   b.addEventListener("click", () => select(i, true));
   li.appendChild(b);
   $("#parts").appendChild(li);
@@ -670,7 +667,7 @@ PARTS.forEach((p, i) => {
 function select(i, moveCamera) {
   currentIndex = (i + PARTS.length) % PARTS.length;
   const p = PARTS[currentIndex];
-  $("#cardNum").textContent = currentIndex + 1;
+  $("#cardNum").textContent = String(currentIndex + 1).padStart(2, "0");
   $("#cardTitle").textContent = p.title;
   $("#cardText").textContent = p.text;
   $("#cardEvidence").textContent = p.evidence;
