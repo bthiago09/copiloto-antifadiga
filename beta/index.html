@@ -373,10 +373,10 @@ body:has(#alert.show) #postoCard { top: 104px; }
     </div>
     <p class="intro">A câmera acompanha os seus olhos enquanto você dirige. Se eles ficarem fechados por tempo demais, o copiloto avisa por voz em 3 níveis.</p>
     <ol class="steps">
-      <li>Na viagem guiada você faz o mesmo trecho duas vezes: primeiro sem o copiloto, depois com ele.</li>
-      <li>Troque de faixa com as setas (ou toque nos lados da tela) e desvie de carros, buracos e animais.</li>
-      <li>O sono chega aos poucos: a visão escurece e você pode cochilar sem querer.</li>
-      <li>Quando o copiloto avisar, aperte <b>Estou Bem</b> (ou Espaço) e procure o posto para descansar.</li>
+      <li><span>Na viagem guiada você faz o mesmo trecho duas vezes: primeiro sem o copiloto, depois com ele.</span></li>
+      <li><span>Troque de faixa com as setas (ou toque nos lados da tela) e desvie de carros, buracos e animais.</span></li>
+      <li><span>O sono chega aos poucos: a visão escurece e você pode cochilar sem querer.</span></li>
+      <li><span>Quando o copiloto avisar, aperte <b>Estou Bem</b> (ou Espaço) e procure o posto para descansar.</span></li>
     </ol>
     <div class="field">
       <span class="label">Modo</span>
@@ -1440,8 +1440,9 @@ function bot() {
 
 /* ================== Laço principal ================== */
 let last = performance.now(), clusterClock = 0, fxClock = 0, blurNow = -1;
-function loop(nowMs) {
-  const rdt = Math.min((nowMs - last) / 1000, 0.05); last = nowMs;
+function loop(nowMs) { frame(nowMs, true); requestAnimationFrame(loop); }
+function frame(nowMs, draw) {
+  const rdt = Math.max(0, Math.min((nowMs - last) / 1000, 0.05)); last = nowMs;
   // câmera lenta rápida na quase-batida
   if (G.slow > 0) G.slow -= rdt;
   G.ts += ((G.slow > 0 ? 0.35 : 1) - G.ts) * Math.min(1, rdt * 10);
@@ -1611,11 +1612,12 @@ function loop(nowMs) {
   if (clusterClock > 0.1) { clusterClock = 0; drawCluster(S.speed, 0.8 + S.speed / 42); }
   updatePosts();
 
-  renderer.render(scene, camera);
+  if (draw) renderer.render(scene, camera);
   $("#spd").textContent = Math.round(S.speed);
   $("#dist").textContent = S.km.toFixed(1).replace(".", ",");
-  requestAnimationFrame(loop);
 }
+// só para testes: avança o jogo quadro a quadro (sem depender da aba visível)
+function step(secs, fps = 30) { let t = Math.max(last, performance.now()); const n = Math.round(secs * fps); for (let i = 0; i < n; i++) { t += 1000 / fps; frame(t, i === n - 1); } }
 
 /* ================== Início ================== */
 document.querySelectorAll(".modes button").forEach(b => b.addEventListener("click", () => {
@@ -1659,7 +1661,7 @@ $("#thrMark").style.left = (cfg.thr * 100) + "%";
 updatePosts();
 $("#loading").remove();
 window.__ready = true;
-window.__sim = { S, A, G, eye, raise, cfg, camera, look, traffic, obstacles, spawnCar, spawnEvent, microsleep, startSegment, startFree, goHome, get ST() { return ST; } };
+window.__sim = { S, A, G, eye, raise, cfg, camera, look, traffic, obstacles, spawnCar, spawnEvent, microsleep, startSegment, startFree, goHome, step, get ST() { return ST; } };
 requestAnimationFrame(loop);
 
 </script>
