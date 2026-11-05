@@ -182,7 +182,7 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 .fat .fill { transition: width .2s linear, background .3s; }
 #tired { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; background: radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 30%, rgba(0,0,0,.96) 100%); }
 #bigMsg {
-  position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%) scale(.96); z-index: 7; pointer-events: none;
+  position: fixed; left: 50%; top: 46%; transform: translate(-50%, -50%) scale(.96); z-index: 7; pointer-events: none;
   padding: 14px 22px; display: grid; justify-items: center; gap: 6px; text-align: center; max-width: calc(100% - 32px);
   border-color: var(--amber); opacity: 0; transition: opacity .25s var(--ease), transform .25s var(--ease);
 }
@@ -191,16 +191,15 @@ select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
 #bigMsg span { font: 500 13px var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
 #bigMsg.bad { border-color: var(--red); } #bigMsg.bad b { color: var(--red); }
 #bigMsg.good { border-color: var(--ok); } #bigMsg.good b { color: var(--ok); }
-#nearMiss { position: fixed; left: 50%; top: 30%; transform: translate(-50%, -50%); z-index: 7; pointer-events: none; font: 700 clamp(56px, 13vh, 128px)/.85 var(--font-display); text-transform: uppercase; letter-spacing: -.02em; color: transparent; -webkit-text-stroke: 2px var(--amber); opacity: 0; transition: opacity .15s; }
+#nearMiss { position: fixed; left: 50%; top: 24%; transform: translate(-50%, -50%); z-index: 7; pointer-events: none; font: 700 clamp(56px, 13vh, 128px)/.85 var(--font-display); text-transform: uppercase; letter-spacing: -.02em; color: transparent; -webkit-text-stroke: 2px var(--amber); opacity: 0; transition: opacity .15s; }
 #nearMiss.show { opacity: 1; }
-#postoCard { position: fixed; left: 50%; top: 16px; transform: translateX(-50%); z-index: 5; width: min(360px, calc(100% - 32px)); padding: 10px 14px; display: grid; gap: 4px; border-color: #3d6fd1; transition: top .3s var(--ease); }
+#postoCard { padding: 10px 12px; display: grid; gap: 4px; border-color: #3d6fd1; }
 #postoCard[hidden] { display: none; }
 #postoCard .label::before { background: #5b8cf0; }
 #postoCard .row > span { font-size: 14px; }
 #postoCard b { font: 700 26px/.9 var(--font-display); color: #9dbbff; }
 #postoCard .hint { font-size: 12.5px; color: var(--muted); }
 #postoCard.ok .hint { color: var(--ok); }
-body:has(#alert.show) #postoCard { top: 104px; }
 #okBtn.off { opacity: .4; }
 .modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--r); }
 .modes button { position: relative; border: 0; border-radius: 0; padding: 10px 12px; display: grid; gap: 2px; align-content: start; text-align: left; min-height: 54px; }
@@ -231,6 +230,11 @@ body:has(#alert.show) #postoCard { top: 104px; }
 @media (max-height: 760px) {
   #start .intro, #start .caption { display: none; }
 }
+@media (max-height: 680px) {
+  .steps li { padding: 5px 0; font-size: 13.5px; }
+  .modes button { min-height: 46px; padding: 8px 12px; }
+  .primary, .secondary { min-height: 46px; }
+}
 @media (max-height: 720px) and (min-width: 901px) {
   #controlsHint, .privacy { display: none; }
   #camWrap { aspect-ratio: 16 / 9; }
@@ -255,7 +259,7 @@ body:has(#alert.show) #postoCard { top: 104px; }
   #trip .row { display: none; }
   #tripMode { font-size: 14px; }
   .fat { gap: 4px; }
-  #postoCard, body:has(#alert.show) #postoCard { top: auto; bottom: 176px; width: calc(100% - 16px); padding: 8px 12px; }
+  #postoCard { position: fixed; left: 8px; right: 8px; bottom: 176px; z-index: 5; padding: 8px 12px; }
   #postoCard b { font-size: 22px; }
   #bigMsg { top: 46%; padding: 12px 16px; }
   .modes button { padding: 8px; min-height: 50px; }
@@ -292,11 +296,6 @@ body:has(#alert.show) #postoCard { top: 104px; }
 <div id="edge"></div>
 <div id="bigMsg" class="panel" aria-live="polite"><b id="bigNum"></b><span id="bigTxt"></span></div>
 <div id="nearMiss" aria-hidden="true">Quase!</div>
-<div id="postoCard" class="panel" hidden>
-  <span class="label">Parada segura</span>
-  <div class="row"><span>Posto de descanso</span><b id="postoDist">500 m</b></div>
-  <span class="hint" id="postoHint">Fique na faixa da direita para entrar.</span>
-</div>
 
 <section id="hud" class="panel" aria-label="Painel do simulador">
   <div class="brand"><span>Equipe 1</span><span class="rule" aria-hidden="true"></span><span class="tag">Protótipo 02</span></div>
@@ -323,6 +322,11 @@ body:has(#alert.show) #postoCard { top: 104px; }
     <div><strong id="logAlerts">0</strong><span>Alertas</span></div>
     <div><strong id="logCrash">0</strong><span>Batidas</span></div>
     <div><strong id="logReact">–</strong><span>Reflexo médio</span></div>
+  </div>
+  <div id="postoCard" class="panel" hidden>
+    <span class="label">Parada segura</span>
+    <div class="row"><span>Posto de descanso</span><b id="postoDist">500 m</b></div>
+    <span class="hint" id="postoHint">Fique na faixa da direita para entrar.</span>
   </div>
 </section>
 
@@ -1412,11 +1416,11 @@ function showInterstitial() {
 function showComparison() {
   const a = G.results[1] || newStats(), b = G.results[2] || newStats();
   const end = r => !r.result ? "–" : r.result.kind === "crash" ? "Batida aos " + fmtT(r.result.at) : r.result.kind === "posto" ? "Parou no posto aos " + fmtT(r.result.at) : "Chegou ao fim";
-  const lower = (x, y) => x < y ? [" best", ""] : y < x ? ["", " best"] : ["", ""];
+  const lower = (x, y, need) => need && !(x > 0 && y > 0) ? ["", ""] : x < y ? [" best", ""] : y < x ? ["", " best"] : ["", ""];
   const rows = [
     ["Como terminou", end(a), end(b), ["", b.result && b.result.kind !== "crash" ? " best" : ""]],
-    ["Maior cochilo", a.longest ? fmtS(a.longest) : "–", b.longest ? fmtS(b.longest) : "–", lower(a.longest, b.longest)],
-    ["Pior trecho às cegas", a.longest ? fmtM(a.longestM) : "–", b.longest ? fmtM(b.longestM) : "–", lower(a.longestM, b.longestM)],
+    ["Maior cochilo", a.longest ? fmtS(a.longest) : "–", b.longest ? fmtS(b.longest) : "–", lower(a.longest, b.longest, true)],
+    ["Pior trecho às cegas", a.longest ? fmtM(a.longestM) : "–", b.longest ? fmtM(b.longestM) : "–", lower(a.longestM, b.longestM, true)],
     ["Alertas do copiloto", "Desligado", String(b.alerts), ["", ""]],
     ["Reação ao alerta", "–", b.okReact.length ? fmtS(avg(b.okReact)) : "–", ["", ""]],
     ["Reflexo nos perigos", a.reflex.length ? fmtS(avg(a.reflex)) : "–", b.reflex.length ? fmtS(avg(b.reflex)) : "–", ["", ""]],
