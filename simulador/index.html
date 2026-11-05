@@ -6,7 +6,8 @@
 <title>Simulador 3D com Copiloto</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@500,600,700&f[]=general-sans@300,400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Rubik:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
@@ -15,156 +16,175 @@
 </script>
 <style>
 :root {
-  /* Mesmo mundo do Protótipo 1: grafite + âmbar rodoviário. Estados de alerta: âmbar (1), laranja (2), vermelho (3).
-     Layout: estrada em tela cheia; câmera e leitura dos olhos à direita; botão "Estou Bem" grande embaixo. */
+  /* Editorial cinematográfico com a paleta da cabine: grafite fosco + âmbar rodoviário (igual ao Protótipo 1).
+     Bordas de 1px, cantos de no máximo 4px, sem sombra, sem gradiente, sem pílula. Estados de alerta: âmbar (1), laranja (2), vermelho (3).
+     Layout: cabine 3D em tela cheia; resumo da viagem à esquerda; câmera à direita; "Estou Bem" grande embaixo. */
   --bg: #07090d;
-  --surface: rgba(18, 22, 28, 0.92);
-  --surface-2: #1c222b;
+  --surface: #13171d;
+  --surface-2: #1a1f27;
   --line: #313945;
+  --line-dark: #222831;
   --ink: #eef1f5;
-  --muted: #b3bbc8;
+  --muted: #a9b1be;
   --amber: #f2a93b;
+  --amber-dim: #6b4a1a;
   --on-amber: #1a1206;
   --orange: #ff7a2f;
   --red: #ef4444;
   --ok: #5fc48a;
-  --font-display: "Outfit", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Rubik", "Segoe UI", system-ui, sans-serif;
-  --r-lg: 16px; --r-md: 11px;
+  --font-display: "Clash Grotesk", "Outfit", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "General Sans", "Rubik", "Segoe UI", system-ui, sans-serif;
+  --r: 4px;
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; overflow: hidden; -webkit-font-smoothing: antialiased; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; overflow: hidden; -webkit-font-smoothing: antialiased; }
 #stage { position: fixed; inset: 0; }
 #stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-#loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--muted); z-index: 3; font-size: 15px; text-align: center; padding: 24px; }
-/* pálpebras: escurecem a visão de cima e de baixo quando os olhos fecham */
+svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 30; opacity: .03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--muted); z-index: 3; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; text-align: center; padding: 24px; }
 #lids { --lid: 0; position: fixed; inset: 0; pointer-events: none; z-index: 3; }
 #lids::before, #lids::after { content: ""; position: absolute; left: 0; right: 0; height: 52%; background: #000; transition: transform .08s linear; }
 #lids::before { top: 0; transform: translateY(calc(-100% + var(--lid) * 100%)); border-radius: 0 0 50% 50% / 0 0 22% 22%; }
 #lids::after { bottom: 0; transform: translateY(calc(100% - var(--lid) * 100%)); border-radius: 50% 50% 0 0 / 22% 22% 0 0; }
-.navlink { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 8px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; transition: background .18s var(--ease), border-color .18s var(--ease); }
-.navlink:hover { background: #252d38; border-color: var(--amber); }
-.navlink:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-svg.i { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-button { font: inherit; color: var(--ink); cursor: pointer; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); transition: background .18s var(--ease), border-color .18s var(--ease), transform .1s var(--ease); }
-button:hover { background: #252d38; }
-button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: 0 10px 30px rgba(0,0,0,.4); }
-.label-sm { font-family: var(--font-display); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 12px; color: var(--muted); margin: 0; }
 
-/* HUD esquerdo */
-#hud { position: fixed; top: 16px; left: 16px; padding: 14px 16px; display: grid; gap: 10px; min-width: 230px; z-index: 5; }
-#hud .eyebrow { font: 600 12px var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); margin: 0; }
-#hud h1 { font: 700 20px/1.15 var(--font-display); margin: 2px 0 0; }
-.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 8px 10px; }
-.stat b { display: block; font: 700 22px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
-.stat span { font-size: 12.5px; color: var(--muted); }
-#log { font-size: 13.5px; color: var(--muted); display: grid; gap: 2px; }
-#log strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+button, .navlink, select { font: inherit; color: var(--ink); cursor: pointer; background: transparent; border: 1px solid var(--line); border-radius: var(--r); transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease); }
+button:hover, .navlink:hover { background: var(--surface-2); border-color: #4a5463; }
+button:focus-visible, .navlink:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.label { display: flex; align-items: center; gap: 10px; margin: 0; font: 600 11px var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.label::before { content: ""; width: 24px; height: 1px; background: var(--amber); flex: none; }
+.brand { display: flex; justify-content: space-between; align-items: center; gap: 10px; font: 500 11px var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.brand .rule { flex: 1; height: 1px; background: var(--line-dark); }
+.brand .tag { color: var(--amber); }
+.headline { position: relative; margin: 0; font: 700 clamp(26px, min(2.6vw, 4.6vh), 38px)/.85 var(--font-display); letter-spacing: -.02em; text-transform: uppercase; }
+.headline .back { position: absolute; inset: 0; transform: translate(3px, 3px); color: transparent; -webkit-text-stroke: 1px var(--amber-dim); pointer-events: none; }
+.headline .front { position: relative; }
+.headline span span { display: block; }
 
-/* Cartão da câmera */
-#camCard { position: fixed; top: 16px; right: 16px; width: 290px; padding: 12px; display: grid; gap: 10px; z-index: 5; }
-#camWrap { position: relative; border-radius: 10px; overflow: hidden; background: #000; aspect-ratio: 4 / 3; }
+/* Resumo da viagem */
+#hud { position: fixed; top: 16px; left: 16px; width: clamp(250px, 20vw, 300px); padding: 16px; display: grid; gap: 12px; z-index: 5; }
+.navlink { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; text-decoration: none; font: 600 12px var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--r); }
+.stat { padding: 8px 10px; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat b { display: block; font: 700 30px/.95 var(--font-display); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+#log { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--line-dark); padding-top: 10px; gap: 6px; }
+#log div { display: grid; gap: 2px; }
+#log span { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); line-height: 1.2; }
+#log strong { font: 600 18px var(--font-display); font-variant-numeric: tabular-nums; }
+
+/* Câmera */
+#camCard { position: fixed; top: 16px; right: 16px; width: clamp(240px, 21vw, 300px); padding: 14px; display: grid; gap: 10px; z-index: 5; }
+#camWrap { position: relative; border: 1px solid var(--line-dark); border-radius: var(--r); overflow: hidden; background: #000; aspect-ratio: 4 / 3; }
 #camWrap video, #camWrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-#camWrap .nocam { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; font-size: 13.5px; color: var(--muted); }
+#camWrap .nocam { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; font-size: 13px; color: var(--muted); }
 #camCard.hidecam #camWrap { display: none; }
-.pill { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); }
-.pill i { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
-.pill.ok i { background: var(--ok); }
-.pill.warn i { background: var(--amber); }
-.pill.bad i { background: var(--red); }
-.meter { position: relative; height: 12px; border-radius: 6px; background: #11151a; border: 1px solid var(--line); overflow: hidden; }
+.pill { display: inline-flex; align-items: center; gap: 8px; font: 600 11px var(--font-body); letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: var(--r); border: 1px solid var(--line); color: var(--muted); }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.pill.ok { color: var(--ok); } .pill.ok i { background: var(--ok); }
+.pill.warn { color: var(--amber); } .pill.warn i { background: var(--amber); }
+.pill.bad { color: var(--red); } .pill.bad i { background: var(--red); }
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; }
+.row b { font: 600 16px var(--font-display); font-variant-numeric: tabular-nums; }
+.meter { position: relative; height: 8px; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
 .meter .fill { position: absolute; inset: 0 auto 0 0; width: 100%; background: var(--ok); transition: width .08s linear; }
-.meter .thr { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--amber); }
-.row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13.5px; }
-.row b { font: 600 15px var(--font-display); font-variant-numeric: tabular-nums; }
-.privacy { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
-.privacy svg { width: 16px; height: 16px; color: var(--ok); margin-top: 2px; }
-.camTools { display: flex; gap: 6px; }
-.camTools button { flex: 1; min-height: 36px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.meter .thr { position: absolute; top: -1px; bottom: -1px; width: 2px; background: var(--amber); }
+.camTools { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--r); }
+.camTools button { border: 0; border-radius: 0; min-height: 36px; font: 600 11px var(--font-body); letter-spacing: .1em; text-transform: uppercase; }
+.camTools button + button { border-left: 1px solid var(--line); }
+.privacy { border-top: 1px solid var(--line-dark); padding-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.privacy b { color: var(--ok); font-weight: 600; }
 
-/* Faixa de alerta */
+/* Alerta */
 #alert {
-  position: fixed; top: 16px; left: 50%; transform: translate(-50%, -140%); z-index: 6;
-  display: flex; align-items: center; gap: 14px; padding: 12px 18px; max-width: min(560px, calc(100% - 640px));
-  min-width: 320px; border-radius: var(--r-lg); border: 2px solid var(--amber); background: rgba(24, 18, 8, .95);
-  transition: transform .3s var(--ease);
+  position: fixed; top: 16px; left: 50%; transform: translate(-50%, -160%); z-index: 6;
+  display: flex; align-items: stretch; width: min(520px, calc(100% - 640px)); min-width: 320px;
+  border: 1px solid var(--amber); border-radius: var(--r); background: #160f05; transition: transform .3s var(--ease);
 }
 #alert.show { transform: translate(-50%, 0); }
-#alert .lvl { font: 700 13px var(--font-display); letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; background: var(--amber); color: var(--on-amber); white-space: nowrap; }
-#alert p { margin: 0; font-size: 15.5px; }
-#alert.l2 { border-color: var(--orange); background: rgba(30, 14, 6, .95); }
-#alert.l2 .lvl { background: var(--orange); }
-#alert.l3 { border-color: var(--red); background: rgba(40, 8, 8, .96); }
-#alert.l3 .lvl { background: var(--red); color: #fff; }
-#edge { position: fixed; inset: 0; pointer-events: none; z-index: 4; box-shadow: inset 0 0 0 0 transparent; transition: box-shadow .3s var(--ease); }
-#edge.l3 { animation: pulse 0.9s infinite; }
-@keyframes pulse { 0%,100% { box-shadow: inset 0 0 0 6px rgba(239,68,68,.85), inset 0 0 120px rgba(239,68,68,.35); } 50% { box-shadow: inset 0 0 0 2px rgba(239,68,68,.4), inset 0 0 40px rgba(239,68,68,.1); } }
+#alert .lvl { display: grid; place-items: center; padding: 0 14px; font: 700 14px var(--font-display); letter-spacing: .06em; text-transform: uppercase; background: var(--amber); color: var(--on-amber); white-space: nowrap; }
+#alert p { margin: 0; padding: 12px 14px; font-size: 15px; }
+#alert.l2 { border-color: var(--orange); background: #1c0c04; } #alert.l2 .lvl { background: var(--orange); }
+#alert.l3 { border-color: var(--red); background: #220707; } #alert.l3 .lvl { background: var(--red); color: #fff; }
+#edge { position: fixed; inset: 0; pointer-events: none; z-index: 4; }
+#edge.l3 { animation: pulse .9s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: inset 0 0 0 6px rgba(239,68,68,.85); } 50% { box-shadow: inset 0 0 0 2px rgba(239,68,68,.35); } }
 
-/* Botão Estou Bem */
+/* Estou Bem */
 #okBtn {
-  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 6;
-  min-width: 260px; min-height: 64px; padding: 10px 28px; border-radius: 999px;
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  background: var(--amber); color: var(--on-amber); border: 0; font: 700 20px var(--font-display); letter-spacing: .02em;
-  box-shadow: 0 10px 30px rgba(242,169,59,.25);
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 6;
+  min-width: 280px; min-height: 60px; padding: 0 24px; display: flex; align-items: center; justify-content: center; gap: 14px;
+  background: var(--amber); border: 1px solid var(--amber); color: var(--on-amber); font: 700 22px var(--font-display); letter-spacing: .02em; text-transform: uppercase;
 }
-#okBtn:hover { background: #ffb954; }
-#okBtn:active { transform: translateX(-50%) scale(.97); }
-#okBtn kbd { font: 600 12px var(--font-display); border: 1.5px solid rgba(26,18,6,.5); border-radius: 6px; padding: 1px 7px; }
+#okBtn:hover { background: #ffb954; border-color: #ffb954; }
+#okBtn:active { transform: translateX(-50%) scale(.98); }
+#okBtn kbd { font: 600 11px var(--font-body); letter-spacing: .1em; border: 1px solid rgba(26,18,6,.45); border-radius: 2px; padding: 2px 6px; }
 #okBtn.attn { animation: attn 1s infinite; }
-@keyframes attn { 0%,100% { box-shadow: 0 0 0 0 rgba(242,169,59,.7); } 50% { box-shadow: 0 0 0 14px rgba(242,169,59,0); } }
+@keyframes attn { 0%,100% { outline: 2px solid rgba(242,169,59,.0); outline-offset: 0; } 50% { outline: 2px solid rgba(242,169,59,.9); outline-offset: 6px; } }
 
-#controlsHint { position: fixed; left: 16px; bottom: 16px; z-index: 5; padding: 10px 14px; font-size: 13.5px; color: var(--muted); display: grid; gap: 2px; }
-#controlsHint b { color: var(--ink); font-weight: 500; }
-#gearBtn { position: fixed; right: 16px; bottom: 16px; z-index: 6; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border-radius: 50%; }
+#controlsHint { position: fixed; left: 16px; bottom: 16px; z-index: 5; padding: 10px 12px; font-size: 12px; color: var(--muted); display: grid; gap: 2px; letter-spacing: .02em; }
+#controlsHint b { color: var(--ink); font-weight: 600; }
+#gearBtn { position: fixed; right: 16px; bottom: 16px; z-index: 6; min-height: 40px; padding: 0 12px; background: var(--surface); font: 600 11px var(--font-body); letter-spacing: .12em; text-transform: uppercase; }
+#gearBtn[aria-expanded="true"] { border-color: var(--amber); color: var(--amber); }
 
-/* Ajustes */
-#settings { position: fixed; right: 16px; bottom: 76px; width: 320px; padding: 16px; z-index: 7; display: none; gap: 14px; }
+#settings { position: fixed; right: 16px; bottom: 64px; width: 320px; padding: 16px; z-index: 7; display: none; gap: 14px; }
 #settings.open { display: grid; }
-#settings h2 { font: 600 18px var(--font-display); margin: 0; }
+#settings h2 { margin: 0; font: 700 22px/.9 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; }
 .field { display: grid; gap: 4px; }
-.field label { display: flex; justify-content: space-between; font-size: 14px; }
+.field label { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; }
 .field label output { font: 600 14px var(--font-display); color: var(--amber); font-variant-numeric: tabular-nums; }
 .field input[type=range] { width: 100%; accent-color: var(--amber); }
-.check { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+.check { display: flex; gap: 10px; align-items: center; font-size: 13.5px; }
 .check input { width: 18px; height: 18px; accent-color: var(--amber); }
 
 /* Telas sobrepostas */
-.overlay { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 24px; background: rgba(5,7,10,.72); backdrop-filter: blur(4px); }
+.overlay { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: rgba(5,7,10,.82); }
 .overlay[hidden] { display: none; }
-.dialog { width: min(620px, 100%); padding: 28px; display: grid; gap: 18px; }
-.dialog .eyebrow { font: 600 12px var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); margin: 0; }
-.dialog h2 { font: 700 30px/1.15 var(--font-display); margin: 4px 0 0; text-wrap: balance; }
-.dialog p { margin: 0; color: #d6dbe3; }
-.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: s; }
-.steps li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #d6dbe3; }
-.steps li::before { counter-increment: s; content: counter(s); flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #2c3440; font: 700 13px var(--font-display); color: var(--ink); }
-select { font: inherit; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; width: 100%; }
-.actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.primary { background: var(--amber); color: var(--on-amber); border: 0; font: 700 17px var(--font-display); min-height: 52px; padding: 0 22px; flex: 1; }
-.primary:hover { background: #ffb954; }
-.secondary { min-height: 52px; padding: 0 18px; font-weight: 500; flex: 1; }
+.dialog { width: min(620px, 100%); max-height: calc(100% - 16px); overflow: auto; padding: clamp(18px, 3vh, 28px); display: grid; gap: clamp(10px, 1.8vh, 16px); }
+.dialog h2 { margin: 0; font: 700 clamp(30px, 5.5vh, 46px)/.85 var(--font-display); text-transform: uppercase; letter-spacing: -.02em; text-wrap: balance; }
+.dialog p { margin: 0; color: #d3d8e0; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; counter-reset: s; border-top: 1px solid var(--line-dark); }
+.steps li { display: flex; gap: 14px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line-dark); font-size: 14.5px; color: #d3d8e0; }
+.steps li::before { counter-increment: s; content: "0" counter(s); flex: none; font: 600 15px var(--font-display); color: var(--amber); }
+select { background: var(--surface-2); padding: 10px 12px; width: 100%; }
+.actions { display: flex; gap: 0; flex-wrap: wrap; }
+.primary { flex: 1; min-height: 52px; padding: 0 20px; background: var(--amber); border-color: var(--amber); color: var(--on-amber); font: 700 15px var(--font-body); letter-spacing: .1em; text-transform: uppercase; border-radius: var(--r) 0 0 var(--r); }
+.primary:hover { background: #ffb954; border-color: #ffb954; }
+.secondary { flex: 1; min-height: 52px; padding: 0 18px; font: 600 14px var(--font-body); letter-spacing: .1em; text-transform: uppercase; border-radius: 0 var(--r) var(--r) 0; border-left: 0; }
+#pause .primary, .actions .primary:only-child { border-radius: var(--r); }
 .err { color: #ffb4b4; font-size: 14px; }
-#calib .big { font: 700 64px var(--font-display); color: var(--amber); text-align: center; font-variant-numeric: tabular-nums; }
+.caption { font-size: 12.5px; color: var(--muted) !important; }
+#calib .big { font: 700 96px/.85 var(--font-display); color: var(--amber); text-align: center; font-variant-numeric: tabular-nums; }
 
-#toast { position: fixed; left: 50%; bottom: 104px; transform: translate(-50%, 8px); z-index: 8; max-width: min(520px, calc(100% - 32px)); padding: 11px 16px; border-left: 4px solid var(--ok); font-size: 15px; opacity: 0; transition: opacity .25s var(--ease), transform .25s var(--ease); pointer-events: none; }
+#toast { position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 8px); z-index: 8; max-width: min(520px, calc(100% - 32px)); padding: 10px 14px; border-left: 3px solid var(--ok); font-size: 14px; opacity: 0; transition: opacity .25s var(--ease), transform .25s var(--ease); pointer-events: none; }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+@media (max-height: 720px) and (min-width: 901px) {
+  #controlsHint, .privacy { display: none; }
+  #camWrap { aspect-ratio: 16 / 9; }
+}
 @media (max-width: 900px) {
-  #hud { top: 8px; left: 8px; min-width: 0; padding: 10px 12px; }
-  #hud h1, #log, #controlsHint { display: none; }
-  #camCard { top: 8px; right: 8px; width: 200px; padding: 8px; gap: 6px; }
-  #camCard .privacy, .camTools { display: none; }
-  #alert { top: auto; bottom: 100px; max-width: calc(100% - 16px); min-width: 0; }
-  #alert:not(.show) { transform: translate(-50%, 200%); }
-  #okBtn { min-width: 220px; bottom: 16px; }
+  #hud { top: 8px; left: 8px; width: auto; max-width: calc(50% - 12px); padding: 10px; gap: 8px; }
+  #hud .brand, #hud .headline, #log, #controlsHint { display: none; }
+  .navlink { min-height: 34px; font-size: 11px; padding: 0 10px; }
+  .stat b { font-size: 22px; }
+  #camCard { top: 8px; right: 8px; width: calc(50% - 12px); max-width: 220px; padding: 8px; gap: 6px; }
+  #camCard .privacy, .camTools, #camCard .label { display: none; }
+  #alert { top: auto; bottom: 92px; width: calc(100% - 16px); min-width: 0; }
+  #alert:not(.show) { transform: translate(-50%, 260%); }
+  #okBtn { min-width: 0; width: calc(100% - 140px); bottom: 12px; font-size: 19px; min-height: 54px; }
   #okBtn kbd { display: none; }
-  #settings { left: 8px; right: 8px; width: auto; }
+  #gearBtn { bottom: 12px; right: 8px; min-height: 54px; }
+  #settings { left: 8px; right: 8px; width: auto; bottom: 74px; }
+  #toast { bottom: 150px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -186,23 +206,25 @@ select { font: inherit; color: var(--ink); background: var(--surface-2); border:
 <div id="edge"></div>
 
 <section id="hud" class="panel" aria-label="Painel do simulador">
-  <div>
-    <p class="eyebrow">Protótipo 2 · Equipe 1</p>
-    <h1>Simulador de estrada</h1>
-  </div>
-  <a class="navlink" href="https://bthiago09.github.io/copiloto-antifadiga/"><svg class="i" aria-hidden="true"><use href="#i-left"/></svg>Ver o aparelho (Protótipo 1)</a>
+  <div class="brand"><span>Equipe 1</span><span class="rule" aria-hidden="true"></span><span class="tag">Protótipo 02</span></div>
+  <h1 class="headline" aria-label="Simulador de estrada">
+    <span class="back" aria-hidden="true"><span>Simulador</span><span>de estrada</span></span>
+    <span class="front"><span>Simulador</span><span>de estrada</span></span>
+  </h1>
+  <a class="navlink" href="https://bthiago09.github.io/copiloto-antifadiga/"><span aria-hidden="true">←</span>Ver o aparelho</a>
   <div class="stats">
     <div class="stat"><b id="spd">0</b><span>km/h</span></div>
     <div class="stat"><b id="dist">0,0</b><span>km rodados</span></div>
   </div>
   <div id="log" aria-live="polite">
-    <div>Alertas: <strong id="logAlerts">0</strong> · Saídas de pista: <strong id="logCrash">0</strong></div>
-    <div>Tempo de reação médio: <strong id="logReact">–</strong></div>
+    <div><strong id="logAlerts">0</strong><span>Alertas</span></div>
+    <div><strong id="logCrash">0</strong><span>Saídas de pista</span></div>
+    <div><strong id="logReact">–</strong><span>Reação média</span></div>
   </div>
 </section>
 
 <section id="camCard" class="panel" aria-label="Câmera e leitura dos olhos">
-  <div class="row"><span class="label-sm">Câmera do copiloto</span><span class="pill" id="faceState"><i></i><span>Desligada</span></span></div>
+  <div class="row"><p class="label">Câmera</p><span class="pill" id="faceState"><i></i><span>Desligada</span></span></div>
   <div id="camWrap">
     <video id="video" playsinline muted></video>
     <canvas id="overlay"></canvas>
@@ -214,15 +236,15 @@ select { font: inherit; color: var(--ink); background: var(--surface-2); border:
   </div>
   <div class="row"><span>Olhos fechados há</span><b id="closedFor">0,0 s</b></div>
   <div class="camTools">
-    <button id="recal"><svg class="i"><use href="#i-target"/></svg>Recalibrar</button>
-    <button id="toggleCam" aria-pressed="false"><svg class="i"><use href="#i-eye"/></svg>Esconder imagem</button>
+    <button id="recal">Recalibrar</button>
+    <button id="toggleCam" aria-pressed="false">Esconder imagem</button>
   </div>
-  <div class="privacy"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg><span>Processamento local no navegador. Nenhuma imagem é gravada ou enviada.</span></div>
+  <div class="privacy"><b>Processamento local.</b> Nenhuma imagem é gravada ou enviada.</div>
 </section>
 
 <div id="alert" role="alert" aria-live="assertive"><span class="lvl" id="alertLvl">Nível 1</span><p id="alertText"></p></div>
 
-<button id="okBtn" aria-label="Estou Bem"><svg class="i" style="width:26px;height:26px"><use href="#i-check"/></svg>ESTOU BEM <kbd>Espaço</kbd></button>
+<button id="okBtn" aria-label="Estou Bem">Estou Bem <kbd>Espaço</kbd></button>
 
 <div id="controlsHint" class="panel">
   <div><b>← →</b> ou <b>A D</b> troca de faixa</div>
@@ -230,7 +252,7 @@ select { font: inherit; color: var(--ink); background: var(--surface-2); border:
   <div>Mova o mouse para olhar em volta</div>
 </div>
 
-<button id="gearBtn" aria-label="Ajustes" aria-expanded="false" aria-controls="settings"><svg class="i"><use href="#i-gear"/></svg></button>
+<button id="gearBtn" aria-expanded="false" aria-controls="settings">Ajustes</button>
 <section id="settings" class="panel" aria-label="Ajustes do copiloto">
   <h2>Ajustes do copiloto</h2>
   <div class="field"><label for="sThr">Sensibilidade dos olhos <output id="oThr"></output></label><input type="range" id="sThr" min="35" max="80" step="1"></div>
@@ -246,8 +268,9 @@ select { font: inherit; color: var(--ink); background: var(--surface-2); border:
 <!-- Tela inicial -->
 <div class="overlay" id="start">
   <div class="dialog panel" role="dialog" aria-labelledby="startTitle">
+    <div class="brand"><span>Equipe 1</span><span class="rule" aria-hidden="true"></span><span class="tag">Protótipo 02</span></div>
     <div>
-      <p class="eyebrow">Protótipo 2 · Copiloto antifadiga</p>
+      <p class="label" style="margin-bottom:10px">Copiloto antifadiga</p>
       <h2 id="startTitle">Dirija à noite com o copiloto de olho no sono</h2>
     </div>
     <p>A câmera acompanha os seus olhos enquanto você dirige. Se eles ficarem fechados por tempo demais, o copiloto avisa por voz em 3 níveis.</p>
@@ -258,7 +281,7 @@ select { font: inherit; color: var(--ink); background: var(--surface-2); border:
       <li>Aperte <b>Estou Bem</b> (ou Espaço) para confirmar que está desperto.</li>
     </ol>
     <div class="field">
-      <label for="camSelect">Câmera</label>
+      <label for="camSelect" class="label">Câmera</label>
       <select id="camSelect"><option value="">Câmera padrão (o navegador vai pedir permissão)</option></select>
     </div>
     <p class="err" id="startErr" hidden></p>
@@ -266,7 +289,7 @@ select { font: inherit; color: var(--ink); background: var(--surface-2); border:
       <button class="primary" id="startCam">Iniciar com a câmera</button>
       <button class="secondary" id="startNoCam">Iniciar sem câmera</button>
     </div>
-    <p style="font-size:13.5px;color:var(--muted)">Para usar a câmera do celular, conecte-o como webcam (ex.: DroidCam ou Vincular ao Celular do Windows) e escolha-o na lista. Ou abra esta página direto no celular.</p>
+    <p class="caption">Para usar a câmera do celular, conecte-o como webcam (ex.: DroidCam ou Vincular ao Celular do Windows) e escolha-o na lista. Ou abra esta página direto no celular.</p>
   </div>
 </div>
 
