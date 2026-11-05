@@ -1280,9 +1280,11 @@ function missPosto() {
 /* ---------- Viagem guiada: o mesmo roteiro nos dois trechos ---------- */
 const SEG_LEN = 62;
 const otherLane = l => l !== S.lane ? l : (l + 1) % LANES;
+// carros que ultrapassam você na faixa ao lado (não bloqueiam o roteiro)
+function overtaker(lane) { const c = traffic.find(c => !c.userData.active); if (c && !laneBusy(lane, -1500, 2500)) place(c, lane, 1800, 114); }
 const SCRIPT = [
-  { t: 3.5, fn: () => spawnCar(otherLane(0), 72) },
-  { t: 7, fn: () => spawnCar(otherLane(2), 76) },
+  { t: 3.5, fn: () => overtaker(otherLane(0)) },
+  { t: 7, fn: () => overtaker(otherLane(2)) },
   // carro à frente freia: teste de reflexo, ainda acordado
   { t: 10, fn: () => { G.brakeCar = spawnEvent("brake", -9000); if (G.brakeCar) G.brakeCar.userData.brakeIn = 0; } },
   { t: 12.6, fn: () => brake(G.brakeCar, 38) },
@@ -1297,9 +1299,9 @@ const SCRIPT = [
   { t: 27, fn: () => { microsleep(4.0, { follow: G.leadCar }); brake(G.leadCar, 40); } },
   // cochilo 2: o carro vai saindo da pista
   { t: 36, fn: () => microsleep(4.0, { drift: true }) },
-  { t: 41, fn: () => spawnCar(otherLane(0), 74) },
+  { t: 41, fn: () => overtaker(otherLane(0)) },
   { t: 46, fn: () => spawnEvent("hole", -8000) },
-  { t: 50, fn: () => spawnCar(otherLane(1), 78) },
+  { t: 50, fn: () => overtaker(otherLane(0)) },
 ];
 const BLINKS = [16.5, 22, 24.6, 33, 44, 51.5];
 
@@ -1553,7 +1555,7 @@ function frame(nowMs, draw) {
       // para-choque dianteiro ~ z -230; traseira do obstáculo = z + h
       if (u.z + u.h > -260 && u.z - u.h < -120 && lat < (u.kind === "hole" ? 150 : 190)) {
         if (u.kind === "hole") { if (!u.hit) { u.hit = true; potholeHit(); } }
-        else { crash(u.kind === "animal" ? "Batida no jegue que estava na pista." : "Batida no carro da frente."); break; }
+        else { crash(u.kind === "animal" ? "Batida no jegue que estava na pista." : u.v > S.speed ? "Batida ao trocar de faixa." : "Batida no carro da frente."); break; }
       }
       if (!u.passed && u.z - u.h > -120) {
         u.passed = true;
