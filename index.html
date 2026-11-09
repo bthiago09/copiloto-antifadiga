@@ -291,7 +291,7 @@ const PARTS = [
     evidence: "17 dos 21 dizem que luz forte na cabine ou de outros veículos atrapalha à noite." },
   { id: "ok", short: "Estou Bem", title: "Botão “Estou Bem” em cima do aparelho",
     text: "Botão grande no topo do próprio aparelho: dá para achar com a mão sem tirar os olhos da estrada. Um toque confirma que o motorista está desperto e o alerta para. Se os sinais de sono continuarem, o alerta volta mais forte. Não precisa de fio nem de instalação no volante.",
-    evidence: "Toque no botão âmbar em cima do aparelho para testar." },
+    evidence: "Toque no botão verde em cima do aparelho para testar." },
   { id: "mount", short: "Suporte", title: "Suporte articulado",
     text: "Base adesiva com articulação: o ângulo da câmera se ajusta à altura de cada motorista e ao formato de cada painel.",
     evidence: "Pensado para carro, van e caminhão." },
@@ -367,8 +367,8 @@ const sealTex = canvasTex(512, 300, (g, w, h) => {
   g.fillText("NÃO ENVIA", 176, 186);
 });
 const okTex = canvasTex(256, 256, (g) => {
-  g.fillStyle = "#f2a93b"; g.beginPath(); g.arc(128, 128, 128, 0, Math.PI * 2); g.fill();
-  g.fillStyle = "#1a1206"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillStyle = "#3fbf74"; g.beginPath(); g.arc(128, 128, 128, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#06210f"; g.textAlign = "center"; g.textBaseline = "middle";
   g.font = "bold 54px Arial, sans-serif"; g.fillText("ESTOU", 128, 102); g.fillText("BEM", 128, 158);
 });
 const grilleTex = canvasTex(256, 256, (g, w, h) => {
@@ -532,9 +532,9 @@ okBase.position.y = 0.15;
 okBase.castShadow = true;
 okGroup.add(okBase);
 const okCap = new THREE.Mesh(new THREE.CylinderGeometry(1.18, 1.18, 0.42, 48),
-  [new THREE.MeshStandardMaterial({ color: 0xc78726, roughness: 0.5 }),
+  [new THREE.MeshStandardMaterial({ color: 0x2a8f52, roughness: 0.5 }),
    new THREE.MeshStandardMaterial({ map: okTex, roughness: 0.5 }),
-   new THREE.MeshStandardMaterial({ color: 0xc78726 })]);
+   new THREE.MeshStandardMaterial({ color: 0x2a8f52 })]);
 okCap.rotation.y = Math.PI / 2;
 okCap.position.y = 0.42;
 okCap.castShadow = true;
