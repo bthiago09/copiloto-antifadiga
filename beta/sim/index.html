@@ -945,7 +945,7 @@ const okGroup = add(new THREE.Group(), head); okGroup.position.set(1.7, 2.7 + 4.
 const okBase = add(new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.55, 0.3, 32), M.rubber), okGroup); okBase.position.y = 0.15;
 const okCap = add(new THREE.Mesh(new THREE.CylinderGeometry(1.18, 1.18, 0.42, 40), [
   new THREE.MeshStandardMaterial({ color: 0xc78726, roughness: .5 }), new THREE.MeshStandardMaterial({ map: okTex, roughness: .5 }), new THREE.MeshStandardMaterial({ color: 0xc78726 })]), okGroup);
-okCap.rotation.y = -Math.PI / 2; okCap.position.y = 0.42;
+okCap.rotation.y = Math.PI / 2; okCap.position.y = 0.42;
 const waves = [];
 for (let i = 0; i < 3; i++) {
   const m = add(new THREE.Mesh(new THREE.RingGeometry(1.3, 1.5, 40), new THREE.MeshBasicMaterial({ color: 0xf2a93b, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false })), head);

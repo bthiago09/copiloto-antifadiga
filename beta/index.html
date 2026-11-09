@@ -535,7 +535,7 @@ const okCap = new THREE.Mesh(new THREE.CylinderGeometry(1.18, 1.18, 0.42, 48),
   [new THREE.MeshStandardMaterial({ color: 0xc78726, roughness: 0.5 }),
    new THREE.MeshStandardMaterial({ map: okTex, roughness: 0.5 }),
    new THREE.MeshStandardMaterial({ color: 0xc78726 })]);
-okCap.rotation.y = -Math.PI / 2;
+okCap.rotation.y = Math.PI / 2;
 okCap.position.y = 0.42;
 okCap.castShadow = true;
 okGroup.add(okCap);
@@ -749,7 +749,7 @@ $("#btnSpin").addEventListener("click", () => setSpin(!controls.autoRotate));
 /* Vistas */
 const views = {
   device: () => { const k = innerWidth < innerHeight ? 1.75 : 1; return { t: head.localToWorld(new THREE.Vector3(0, 2.4, 0)), p: head.localToWorld(new THREE.Vector3(7 * k, 7 * k, 21 * k)) }; },
-  top:    () => ({ t: head.localToWorld(new THREE.Vector3(1.2, 4.2, 0)), p: head.localToWorld(new THREE.Vector3(-4, 17, 15)) }),
+  top:    () => ({ t: head.localToWorld(new THREE.Vector3(1.2, 4.2, 0)), p: head.localToWorld(new THREE.Vector3(-5, 20, 19)) }),
   side:   () => ({ t: head.localToWorld(new THREE.Vector3(2, 2.6, 0)), p: head.localToWorld(new THREE.Vector3(20, 6, 12)) }),
   driver: () => ({ p: new THREE.Vector3(-30, 34, 96), t: new THREE.Vector3(-8, 0, 2) }),
   cabin:  () => ({ p: new THREE.Vector3(52, 36, 60), t: new THREE.Vector3(-8, -2, 4) })
