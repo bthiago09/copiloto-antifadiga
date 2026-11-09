@@ -9,7 +9,7 @@ Mockup 3D interativo do dispositivo antifadiga: uma câmera no painel que acompa
 - Arraste para girar e role para aproximar.
 - Toque nos números para conhecer cada parte do aparelho.
 - **T** abre/fecha a tampa de privacidade · **N** liga o modo noite · **G** gira o aparelho · **← →** troca a parte.
-- Na parte 4 (alto-falante), ouça os 3 níveis de alerta. O botão âmbar no volante é o "Estou Bem".
+- Na parte 4 (alto-falante), ouça os 3 níveis de alerta. O botão âmbar em cima do aparelho é o "Estou Bem".
 
 ## Como usar o Protótipo 2
 Escolha um modo na tela inicial:

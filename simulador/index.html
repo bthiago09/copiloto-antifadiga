@@ -924,11 +924,6 @@ const hub = add(new THREE.Mesh(new THREE.CylinderGeometry(5.5, 6, 3, 32), M.whee
   sp.position.set(sx * 10, sy * 10, 0);
 });
 const col = add(new THREE.Mesh(new THREE.CylinderGeometry(3.2, 4, 22, 20), M.wheel)); col.position.set(-26, -6, 12); col.rotation.x = Math.PI / 2 - 0.42;
-const okGroup = add(new THREE.Group(), steer); okGroup.position.set(13.5, 0, 1.15);
-const okBase = add(new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.6, 0.6, 32), M.rubber), okGroup); okBase.rotation.x = Math.PI / 2;
-const okCap = add(new THREE.Mesh(new THREE.CylinderGeometry(2.05, 2.05, 0.7, 40), [
-  new THREE.MeshStandardMaterial({ color: 0xc78726, roughness: .5 }), new THREE.MeshStandardMaterial({ map: okTex, roughness: .5 }), new THREE.MeshStandardMaterial({ color: 0xc78726 })]), okGroup);
-okCap.rotation.x = Math.PI / 2; okCap.rotation.y = Math.PI / 2; okCap.position.z = 0.55;
 
 // o copiloto no painel (mesma posição do Protótipo 1)
 const device = add(new THREE.Group()); device.position.set(2, 0, 4); device.rotation.y = -0.42;
@@ -945,6 +940,12 @@ const liris = add(new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.42, 24
 const lidPlate = add(new THREE.Mesh(new RoundedBoxGeometry(2.9, 2.9, 0.32, 3, 0.25), M.lid), head); lidPlate.position.set(0.1, lensY, front + 0.42);
 const seal = add(new THREE.Mesh(new THREE.PlaneGeometry(2.05, 1.2), new THREE.MeshStandardMaterial({ map: sealTex, roughness: .6 })), head); seal.position.set(2.6, lensY + 0.1, front + 0.01);
 const grille = add(new THREE.Mesh(new THREE.CircleGeometry(1.25, 40), new THREE.MeshStandardMaterial({ map: grilleTex, roughness: .9 })), head); grille.position.set(DW / 2 + 0.01, 2.7, 0); grille.rotation.y = Math.PI / 2;
+// botão "Estou Bem" no topo do aparelho, do lado do motorista
+const okGroup = add(new THREE.Group(), head); okGroup.position.set(1.7, 2.7 + 4.6 / 2, 0.1);
+const okBase = add(new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.55, 0.3, 32), M.rubber), okGroup); okBase.position.y = 0.15;
+const okCap = add(new THREE.Mesh(new THREE.CylinderGeometry(1.18, 1.18, 0.42, 40), [
+  new THREE.MeshStandardMaterial({ color: 0xc78726, roughness: .5 }), new THREE.MeshStandardMaterial({ map: okTex, roughness: .5 }), new THREE.MeshStandardMaterial({ color: 0xc78726 })]), okGroup);
+okCap.rotation.y = Math.PI / 2; okCap.position.y = 0.42;
 const waves = [];
 for (let i = 0; i < 3; i++) {
   const m = add(new THREE.Mesh(new THREE.RingGeometry(1.3, 1.5, 40), new THREE.MeshBasicMaterial({ color: 0xf2a93b, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false })), head);
@@ -1625,7 +1626,7 @@ function frame(nowMs, draw) {
   if (S.shake > 0.05 && !reduceMotion) camera.position.add(new THREE.Vector3((Math.random() - .5) * S.shake, (Math.random() - .5) * S.shake, 0));
   camera.rotation.set(look.pitch, look.yaw + S.steerVel * 0.03, 0, "YXZ");
 
-  if (okPress > 0) { okPress = Math.max(0, okPress - rdt * 3); okCap.position.z = 0.55 - Math.sin(okPress * Math.PI) * 0.35; }
+  if (okPress > 0) { okPress = Math.max(0, okPress - rdt * 3); okCap.position.y = 0.42 - Math.sin(okPress * Math.PI) * 0.2; }
   if (waveQueue > 0) { waveClock -= rdt; if (waveClock <= 0) { const w = waves.find(x => x.userData.t < 0); if (w) { w.userData.t = 0; waveQueue--; waveClock = 0.45; } } }
   waves.forEach(w => { if (w.userData.t < 0) return; w.userData.t += rdt; const k = w.userData.t / 1.2; w.scale.setScalar(1 + k * 3.2); w.material.opacity = Math.max(0, .75 * (1 - k)); if (k >= 1) { w.userData.t = -1; w.material.opacity = 0; } });
 

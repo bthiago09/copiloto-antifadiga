@@ -289,9 +289,9 @@ const PARTS = [
   { id: "body", short: "Corpo fosco", title: "Corpo fosco e sem luzes",
     text: "Acabamento escuro e fosco, sem LEDs nem tela. Não acende, não pisca e não reflete no para-brisa à noite. Ligue o modo noite para conferir.",
     evidence: "17 dos 21 dizem que luz forte na cabine ou de outros veículos atrapalha à noite." },
-  { id: "ok", short: "Estou Bem", title: "Botão “Estou Bem” no volante",
-    text: "Ao alcance do polegar. O motorista confirma que está desperto e o alerta para. Se os sinais de sono continuarem, o alerta volta mais forte.",
-    evidence: "Toque no botão âmbar do volante para testar." },
+  { id: "ok", short: "Estou Bem", title: "Botão “Estou Bem” em cima do aparelho",
+    text: "Botão grande no topo do próprio aparelho: dá para achar com a mão sem tirar os olhos da estrada. Um toque confirma que o motorista está desperto e o alerta para. Se os sinais de sono continuarem, o alerta volta mais forte. Não precisa de fio nem de instalação no volante.",
+    evidence: "Toque no botão âmbar em cima do aparelho para testar." },
   { id: "mount", short: "Suporte", title: "Suporte articulado",
     text: "Base adesiva com articulação: o ângulo da câmera se ajusta à altura de cada motorista e ao formato de cada painel.",
     evidence: "Pensado para carro, van e caminhão." },
@@ -525,20 +525,19 @@ column.position.set(-26, -6, 12);
 column.rotation.x = Math.PI / 2 - 0.42;
 cabin.add(column);
 
-// botão "Estou Bem" no raio direito
+// botão "Estou Bem" (fica em cima do aparelho; o grupo é preso à cabeça mais abaixo)
 const okGroup = new THREE.Group();
-okGroup.position.set(13.5, 0, 1.15);
-wheel.add(okGroup);
-const okBase = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.6, 0.6, 40), M.rubber);
-okBase.rotation.x = Math.PI / 2;
+const okBase = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.55, 0.3, 40), M.rubber);
+okBase.position.y = 0.15;
+okBase.castShadow = true;
 okGroup.add(okBase);
-const okCap = new THREE.Mesh(new THREE.CylinderGeometry(2.05, 2.05, 0.7, 48),
+const okCap = new THREE.Mesh(new THREE.CylinderGeometry(1.18, 1.18, 0.42, 48),
   [new THREE.MeshStandardMaterial({ color: 0xc78726, roughness: 0.5 }),
    new THREE.MeshStandardMaterial({ map: okTex, roughness: 0.5 }),
    new THREE.MeshStandardMaterial({ color: 0xc78726 })]);
-okCap.rotation.x = Math.PI / 2;
 okCap.rotation.y = Math.PI / 2;
-okCap.position.z = 0.55;
+okCap.position.y = 0.42;
+okCap.castShadow = true;
 okGroup.add(okCap);
 
 /* ---------- Aparelho ---------- */
@@ -609,6 +608,9 @@ const grille = new THREE.Mesh(new THREE.CircleGeometry(1.25, 48), new THREE.Mesh
 grille.position.set(W / 2 + 0.01, 2.7, 0);
 grille.rotation.y = Math.PI / 2;
 head.add(grille);
+// "Estou Bem" no topo do aparelho, do lado do motorista
+okGroup.position.set(1.7, H / 2 + 2.7, 0.1);
+head.add(okGroup);
 
 const cablePath = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 2.0, -front), new THREE.Vector3(0, 1.0, -front - 1.4),
@@ -638,7 +640,7 @@ const anchors = {
   seal:    () => head.localToWorld(new THREE.Vector3(2.6, lensY + 1.4, front)),
   speaker: () => head.localToWorld(new THREE.Vector3(W / 2 + 0.6, 2.7, 1.8)),
   body:    () => head.localToWorld(new THREE.Vector3(-0.6, H + 0.8, 0)),
-  ok:      () => okGroup.localToWorld(new THREE.Vector3(0, 3.6, 1)),
+  ok:      () => okGroup.localToWorld(new THREE.Vector3(0, 2.4, 0)),
   mount:   () => device.localToWorld(new THREE.Vector3(3.6, 1.0, 1.8)),
   power:   () => head.localToWorld(new THREE.Vector3(2.6, -1.8, -front - 14))
 };
@@ -682,7 +684,7 @@ function select(i, moveCamera) {
     pins[x.id].classList.toggle("active", k === currentIndex);
   });
   if (moveCamera) {
-    if (p.id === "ok") goTo("driver");
+    if (p.id === "ok") goTo("top");
     else if (p.id === "power") goTo("cabin");
     else if (p.id === "speaker") goTo("side");
     else goTo("device");
@@ -747,6 +749,7 @@ $("#btnSpin").addEventListener("click", () => setSpin(!controls.autoRotate));
 /* Vistas */
 const views = {
   device: () => { const k = innerWidth < innerHeight ? 1.75 : 1; return { t: head.localToWorld(new THREE.Vector3(0, 2.4, 0)), p: head.localToWorld(new THREE.Vector3(7 * k, 7 * k, 21 * k)) }; },
+  top:    () => ({ t: head.localToWorld(new THREE.Vector3(1.2, 4.2, 0)), p: head.localToWorld(new THREE.Vector3(-5, 20, 19)) }),
   side:   () => ({ t: head.localToWorld(new THREE.Vector3(2, 2.6, 0)), p: head.localToWorld(new THREE.Vector3(20, 6, 12)) }),
   driver: () => ({ p: new THREE.Vector3(-30, 34, 96), t: new THREE.Vector3(-8, 0, 2) }),
   cabin:  () => ({ p: new THREE.Vector3(52, 36, 60), t: new THREE.Vector3(-8, -2, 4) })
@@ -900,7 +903,7 @@ function frame() {
   elapsed += dt;
 
   lid.position.x += (lidTarget - lid.position.x) * (reduceMotion ? 1 : Math.min(1, dt * 8));
-  if (okPress > 0) { okPress = Math.max(0, okPress - dt * 3); okCap.position.z = 0.55 - Math.sin(okPress * Math.PI) * 0.35; }
+  if (okPress > 0) { okPress = Math.max(0, okPress - dt * 3); okCap.position.y = 0.42 - Math.sin(okPress * Math.PI) * 0.2; }
 
   // ponteiros com leve oscilação, ~12 quadros por segundo
   clusterClock += dt;
